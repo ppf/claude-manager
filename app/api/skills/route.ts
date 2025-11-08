@@ -1,8 +1,5 @@
 import { NextRequest } from 'next/server'
-import {
-  getLocalSkills,
-  getMarketplaceSkills,
-} from '@/lib/api/skills-service'
+import { getLocalSkills, getMarketplaceSkills } from '@/lib/api/skills-service'
 import { successResponse, errorResponse } from '@/lib/api/response'
 
 export async function GET(request: NextRequest) {
@@ -17,10 +14,7 @@ export async function GET(request: NextRequest) {
     } else if (source === 'local') {
       skills = await getLocalSkills()
     } else {
-      const [local, marketplace] = await Promise.all([
-        getLocalSkills(),
-        getMarketplaceSkills(),
-      ])
+      const [local, marketplace] = await Promise.all([getLocalSkills(), getMarketplaceSkills()])
       skills = [...local, ...marketplace]
     }
 

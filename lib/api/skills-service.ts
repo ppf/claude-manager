@@ -54,10 +54,7 @@ export async function getMarketplaceSkills(): Promise<Skill[]> {
   return []
 }
 
-export async function installSkill(
-  skillId: string,
-  gitUrl: string
-): Promise<void> {
+export async function installSkill(skillId: string, gitUrl: string): Promise<void> {
   await cloneRepository({
     url: gitUrl,
     directory: skillId,
@@ -69,10 +66,7 @@ export async function uninstallSkill(skillId: string): Promise<void> {
   await fs.rm(skillPath, { recursive: true, force: true })
 }
 
-export async function toggleSkill(
-  skillId: string,
-  enabled: boolean
-): Promise<void> {
+export async function toggleSkill(skillId: string, enabled: boolean): Promise<void> {
   const skillPath = path.join(CLAUDE_PATHS.SKILLS, skillId, 'SKILL.md')
   const content = await fs.readFile(skillPath, 'utf-8')
   const { data, content: skillContent } = matter(content)

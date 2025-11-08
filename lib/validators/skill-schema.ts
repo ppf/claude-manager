@@ -3,9 +3,7 @@ import matter from 'gray-matter'
 
 export const skillMetadataSchema = z.object({
   name: z.string().min(1, 'Name is required').max(100, 'Name too long'),
-  description: z
-    .string()
-    .min(10, 'Description must be at least 10 characters'),
+  description: z.string().min(10, 'Description must be at least 10 characters'),
   version: z
     .string()
     .regex(/^\d+\.\d+\.\d+$/, 'Invalid version format (use semver)')

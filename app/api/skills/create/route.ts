@@ -3,11 +3,7 @@ import path from 'path'
 import fs from 'fs/promises'
 import { CLAUDE_PATHS } from '@/lib/claude/paths'
 import { getTemplate, renderTemplate } from '@/lib/templates/skill-templates'
-import {
-  successResponse,
-  validationError,
-  filesystemError,
-} from '@/lib/api/response'
+import { successResponse, validationError, filesystemError } from '@/lib/api/response'
 
 export async function POST(request: NextRequest) {
   try {
@@ -73,8 +69,6 @@ export async function POST(request: NextRequest) {
     })
   } catch (error) {
     console.error('Error creating skill:', error)
-    return filesystemError(
-      error instanceof Error ? error.message : 'Failed to create skill'
-    )
+    return filesystemError(error instanceof Error ? error.message : 'Failed to create skill')
   }
 }

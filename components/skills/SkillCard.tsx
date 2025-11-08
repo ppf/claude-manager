@@ -2,13 +2,7 @@
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from '@/components/ui/card'
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
 import { Download, Trash2, Power } from 'lucide-react'
 import { toast } from 'sonner'
 import type { Skill } from '@/types/claude-config'
@@ -104,9 +98,7 @@ export function SkillCard({ skill, onUpdate }: SkillCardProps) {
         <CardTitle className="flex items-center justify-between">
           <span>{skill.name}</span>
           {skill.enabled && (
-            <span className="text-xs bg-green-500 text-white px-2 py-1 rounded">
-              Enabled
-            </span>
+            <span className="text-xs bg-green-500 text-white px-2 py-1 rounded">Enabled</span>
           )}
         </CardTitle>
         <CardDescription>{skill.description}</CardDescription>

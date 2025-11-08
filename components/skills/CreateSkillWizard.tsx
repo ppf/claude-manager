@@ -2,12 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -31,11 +26,7 @@ interface CreateSkillWizardProps {
 
 type Step = 'template' | 'details' | 'confirm'
 
-export function CreateSkillWizard({
-  open,
-  onOpenChange,
-  templates,
-}: CreateSkillWizardProps) {
+export function CreateSkillWizard({ open, onOpenChange, templates }: CreateSkillWizardProps) {
   const router = useRouter()
   const [step, setStep] = useState<Step>('template')
   const [selectedTemplate, setSelectedTemplate] = useState<string>('')
@@ -101,9 +92,7 @@ export function CreateSkillWizard({
                   <div className="flex-1">
                     <Label htmlFor={template.id} className="cursor-pointer">
                       <div className="font-medium">{template.name}</div>
-                      <div className="text-sm text-muted-foreground">
-                        {template.description}
-                      </div>
+                      <div className="text-sm text-muted-foreground">{template.description}</div>
                       <div className="flex gap-2 mt-2">
                         <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded">
                           {template.category}
@@ -136,9 +125,7 @@ export function CreateSkillWizard({
               <Input
                 id="name"
                 value={skillData.name}
-                onChange={(e) =>
-                  setSkillData({ ...skillData, name: e.target.value })
-                }
+                onChange={(e) => setSkillData({ ...skillData, name: e.target.value })}
                 placeholder="My Awesome Skill"
               />
             </div>
@@ -148,9 +135,7 @@ export function CreateSkillWizard({
               <Textarea
                 id="description"
                 value={skillData.description}
-                onChange={(e) =>
-                  setSkillData({ ...skillData, description: e.target.value })
-                }
+                onChange={(e) => setSkillData({ ...skillData, description: e.target.value })}
                 placeholder="A brief description of what this skill does..."
                 rows={3}
               />
@@ -161,9 +146,7 @@ export function CreateSkillWizard({
               <Input
                 id="author"
                 value={skillData.author}
-                onChange={(e) =>
-                  setSkillData({ ...skillData, author: e.target.value })
-                }
+                onChange={(e) => setSkillData({ ...skillData, author: e.target.value })}
                 placeholder="Your Name"
               />
             </div>
@@ -172,9 +155,7 @@ export function CreateSkillWizard({
               <Label htmlFor="category">Category</Label>
               <Select
                 value={skillData.category}
-                onValueChange={(value) =>
-                  setSkillData({ ...skillData, category: value })
-                }
+                onValueChange={(value) => setSkillData({ ...skillData, category: value })}
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -207,15 +188,13 @@ export function CreateSkillWizard({
           <div className="space-y-4">
             <div className="bg-muted p-4 rounded-lg space-y-2">
               <div>
-                <span className="font-medium">Template:</span>{' '}
-                {selectedTemplateData.name}
+                <span className="font-medium">Template:</span> {selectedTemplateData.name}
               </div>
               <div>
                 <span className="font-medium">Name:</span> {skillData.name}
               </div>
               <div>
-                <span className="font-medium">Description:</span>{' '}
-                {skillData.description}
+                <span className="font-medium">Description:</span> {skillData.description}
               </div>
               {skillData.author && (
                 <div>

@@ -1,16 +1,9 @@
 import { NextRequest } from 'next/server'
-import {
-  installSkill,
-  uninstallSkill,
-  toggleSkill,
-} from '@/lib/api/skills-service'
+import { installSkill, uninstallSkill, toggleSkill } from '@/lib/api/skills-service'
 import { successResponse, errorResponse } from '@/lib/api/response'
 import { GitAuthError } from '@/lib/git/git-manager'
 
-export async function POST(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const { action, gitUrl, enabled } = await request.json()
 
@@ -51,10 +44,7 @@ export async function POST(
   }
 }
 
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     await uninstallSkill(params.id)
     return successResponse({ message: 'Skill uninstalled successfully' })

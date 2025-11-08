@@ -261,10 +261,7 @@ export function renderTemplate(
   for (const [filename, content] of Object.entries(template.files)) {
     let renderedContent = content
     for (const [key, value] of Object.entries(variables)) {
-      renderedContent = renderedContent.replace(
-        new RegExp(`{{${key}}}`, 'g'),
-        value
-      )
+      renderedContent = renderedContent.replace(new RegExp(`{{${key}}}`, 'g'), value)
     }
     rendered.files[filename] = renderedContent
   }
