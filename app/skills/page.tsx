@@ -2,15 +2,22 @@
 
 import { useEffect, useState } from 'react'
 import { SkillCard } from '@/components/skills/SkillCard'
+import { CreateSkillWizard } from '@/components/skills/CreateSkillWizard'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Button } from '@/components/ui/button'
+import { Plus } from 'lucide-react'
 import type { Skill } from '@/types/claude-config'
+import type { SkillTemplate } from '@/lib/templates/skill-templates'
 
 export default function SkillsPage() {
   const [skills, setSkills] = useState<Skill[]>([])
+  const [templates, setTemplates] = useState<SkillTemplate[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [showWizard, setShowWizard] = useState(false)
 
   useEffect(() => {
     fetchSkills()
+    fetchTemplates()
   }, [])
 
   async function fetchSkills() {
@@ -29,6 +36,18 @@ export default function SkillsPage() {
     }
   }
 
+  async function fetchTemplates() {
+    try {
+      const response = await fetch('/api/skills/templates')
+      const result = await response.json()
+      if (result.success) {
+        setTemplates(result.data)
+      }
+    } catch (error) {
+      console.error('Failed to fetch templates:', error)
+    }
+  }
+
   const localSkills = skills.filter((s) => s.source === 'local' || s.path !== '')
   const marketplaceSkills = skills.filter(
     (s) => s.source === 'marketplace' && s.path === ''
@@ -40,7 +59,13 @@ export default function SkillsPage() {
 
   return (
     <div className="p-8">
-      <h1 className="text-3xl font-bold mb-6">Skills</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold">Skills</h1>
+        <Button onClick={() => setShowWizard(true)}>
+          <Plus className="h-4 w-4 mr-2" />
+          Create Skill
+        </Button>
+      </div>
 
       <Tabs defaultValue="installed">
         <TabsList>
@@ -68,6 +93,12 @@ export default function SkillsPage() {
           </div>
         </TabsContent>
       </Tabs>
+
+      <CreateSkillWizard
+        open={showWizard}
+        onOpenChange={setShowWizard}
+        templates={templates}
+      />
     </div>
   )
 }

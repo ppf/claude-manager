@@ -43,7 +43,7 @@ export function validateSkillFile(content: string): {
     if (!result.success) {
       return {
         valid: false,
-        errors: result.error.errors.map((err) => ({
+        errors: result.error.issues.map((err) => ({
           field: err.path.join('.'),
           message: err.message,
         })),
