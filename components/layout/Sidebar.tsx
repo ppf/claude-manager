@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { FileText, Puzzle, Package, Server } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { SearchBar } from '@/components/search/SearchBar'
 
 const navigation = [
   { name: 'Configs', href: '/configs', icon: FileText },
@@ -18,7 +19,8 @@ export function Sidebar() {
   return (
     <div className="flex flex-col gap-2 p-4 border-r bg-muted/40 h-screen w-64">
       <div className="mb-4">
-        <h1 className="text-xl font-bold">Claude Manager</h1>
+        <h1 className="text-xl font-bold mb-3">Claude Manager</h1>
+        <SearchBar />
       </div>
 
       <nav className="flex flex-col gap-1">
