@@ -24,11 +24,14 @@ export async function POST(request: NextRequest) {
 
     // Validate required fields
     if (!body.name || !body.command) {
-      return errorResponse({
-        type: 'validation',
-        message: 'Name and command are required',
-        recoverable: true,
-      }, 400)
+      return errorResponse(
+        {
+          type: 'validation',
+          message: 'Name and command are required',
+          recoverable: true,
+        },
+        400
+      )
     }
 
     const server = await addServer({
@@ -42,11 +45,13 @@ export async function POST(request: NextRequest) {
     return successResponse(server)
   } catch (error) {
     console.error('Error adding MCP server:', error)
-    return errorResponse({
-      type: 'unknown',
-      message: error instanceof Error ? error.message : 'Failed to add MCP server',
-      recoverable: true,
-    }, 500)
+    return errorResponse(
+      {
+        type: 'unknown',
+        message: error instanceof Error ? error.message : 'Failed to add MCP server',
+        recoverable: true,
+      },
+      500
+    )
   }
 }
-

@@ -4,7 +4,10 @@ import { useEffect, useRef, useState } from 'react'
 import Editor, { Monaco } from '@monaco-editor/react'
 import type { editor } from 'monaco-editor'
 import { useDebounce } from '@/hooks/useDebounce'
+import { useLoadingState } from '@/hooks/useLoadingState'
+import { api } from '@/lib/api/client'
 import { toast } from 'sonner'
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
 
 interface CodeEditorProps {
   filePath: string
@@ -24,7 +27,7 @@ export function CodeEditor({
   autoSaveDelay = 2000,
 }: CodeEditorProps) {
   const [content, setContent] = useState(initialContent)
-  const [isSaving, setIsSaving] = useState(false)
+  const { isLoading: isSaving, showLoading: showSaving, startLoading, stopLoading } = useLoadingState()
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null)
   const debouncedContent = useDebounce(content, autoSaveDelay)
 
@@ -38,26 +41,16 @@ export function CodeEditor({
 
   async function handleSave(contentToSave: string) {
     try {
-      setIsSaving(true)
-      const response = await fetch(`/api/configs/${filePath}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: contentToSave }),
-      })
-
-      const result = await response.json()
-
-      if (result.success) {
-        toast.success('File saved')
-        onSave?.(contentToSave)
-      } else {
-        toast.error(result.error?.message || 'Failed to save file')
-      }
+      startLoading()
+      await api.post(`/api/configs/${filePath}`, { content: contentToSave })
+      toast.success('File saved')
+      onSave?.(contentToSave)
     } catch (error) {
-      toast.error('Failed to save file')
+      const message = error instanceof Error ? error.message : 'Failed to save file'
+      toast.error(message)
       console.error('Save error:', error)
     } finally {
-      setIsSaving(false)
+      stopLoading()
     }
   }
 
@@ -91,9 +84,10 @@ export function CodeEditor({
         }}
       />
 
-      {isSaving && (
-        <div className="absolute top-2 right-2 bg-background/80 px-3 py-1 rounded-md text-sm">
-          Saving...
+      {showSaving && (
+        <div className="absolute top-2 right-2 bg-background/80 px-3 py-1 rounded-md text-sm flex items-center gap-2">
+          <LoadingSpinner size="sm" />
+          <span>Saving...</span>
         </div>
       )}
     </div>

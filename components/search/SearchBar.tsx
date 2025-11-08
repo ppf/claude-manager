@@ -189,4 +189,3 @@ export function SearchBar() {
     </div>
   )
 }
-

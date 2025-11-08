@@ -20,13 +20,13 @@ export async function indexConfigs(): Promise<number> {
 
   try {
     const tree = await readDirectory('')
-    
+
     async function indexNode(nodes: FileTreeNode[]) {
       for (const node of nodes) {
         if (node.type === 'file') {
           try {
             const file = await readFile(node.path)
-            
+
             // Skip very large files (>1MB)
             if (file.size > 1024 * 1024) continue
 
@@ -163,9 +163,9 @@ export async function indexMCP(): Promise<number> {
  */
 export async function rebuildSearchIndex(): Promise<void> {
   console.log('Rebuilding search index...')
-  
+
   const startTime = Date.now()
-  
+
   // Clear existing index
   clearIndex()
 
@@ -178,7 +178,7 @@ export async function rebuildSearchIndex(): Promise<void> {
   ])
 
   const duration = Date.now() - startTime
-  
+
   console.log(`Search index rebuilt in ${duration}ms:`)
   console.log(`  - ${configCount} config files`)
   console.log(`  - ${skillCount} skills`)
@@ -193,7 +193,7 @@ async function updateIndexForFile(filePath: string): Promise<void> {
   try {
     // Determine file type based on path
     const relativePath = path.relative(CLAUDE_HOME, filePath)
-    
+
     if (relativePath.startsWith('skills/')) {
       // Re-index all skills (simpler than determining which skill changed)
       await indexSkills()
@@ -204,7 +204,7 @@ async function updateIndexForFile(filePath: string): Promise<void> {
       // Regular config file
       try {
         const file = await readFile(relativePath)
-        
+
         if (file.size <= 1024 * 1024) {
           upsertDocument({
             id: `config:${relativePath}`,
@@ -258,7 +258,7 @@ export function startIncrementalIndexing(): void {
   if (watcherStarted) return
 
   fileWatcher.start()
-  
+
   fileWatcher.on('change', (event: FileChangeEvent) => {
     if (event.type === 'unlink') {
       const relativePath = path.relative(CLAUDE_HOME, event.path)
@@ -271,4 +271,3 @@ export function startIncrementalIndexing(): void {
   watcherStarted = true
   console.log('Incremental search indexing started')
 }
-

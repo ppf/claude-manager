@@ -3,7 +3,14 @@
 import { useEffect, useState } from 'react'
 import { MCPServerCard } from '@/components/mcp/MCPServerCard'
 import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
@@ -237,9 +244,7 @@ export default function MCPPage() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">MCP Servers</h1>
-            <p className="text-muted-foreground mt-1">
-              Manage Model Context Protocol servers
-            </p>
+            <p className="text-muted-foreground mt-1">Manage Model Context Protocol servers</p>
           </div>
           <Button onClick={() => setIsAddDialogOpen(true)} className="gap-2">
             <Plus className="h-4 w-4" />
@@ -252,9 +257,7 @@ export default function MCPPage() {
           <div className="text-center py-12 text-muted-foreground">
             <Server className="h-12 w-12 mx-auto mb-4 opacity-50" />
             <p className="text-lg">No MCP servers configured</p>
-            <p className="text-sm mt-2">
-              Add your first MCP server to get started.
-            </p>
+            <p className="text-sm mt-2">Add your first MCP server to get started.</p>
             <Button variant="outline" className="mt-4" onClick={() => setIsAddDialogOpen(true)}>
               Add Server
             </Button>
@@ -280,9 +283,7 @@ export default function MCPPage() {
           <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle>Add MCP Server</DialogTitle>
-              <DialogDescription>
-                Configure a new Model Context Protocol server
-              </DialogDescription>
+              <DialogDescription>Configure a new Model Context Protocol server</DialogDescription>
             </DialogHeader>
 
             <div className="space-y-4 py-4">
@@ -342,9 +343,7 @@ export default function MCPPage() {
           <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle>Edit MCP Server</DialogTitle>
-              <DialogDescription>
-                Update server configuration
-              </DialogDescription>
+              <DialogDescription>Update server configuration</DialogDescription>
             </DialogHeader>
 
             <div className="space-y-4 py-4">
@@ -400,9 +399,7 @@ export default function MCPPage() {
           <DialogContent className="max-w-4xl max-h-[80vh]">
             <DialogHeader>
               <DialogTitle>Server Logs</DialogTitle>
-              <DialogDescription>
-                Real-time logs from the MCP server
-              </DialogDescription>
+              <DialogDescription>Real-time logs from the MCP server</DialogDescription>
             </DialogHeader>
 
             <ScrollArea className="h-[500px] w-full rounded-md border p-4">
@@ -428,4 +425,3 @@ export default function MCPPage() {
     </div>
   )
 }
-

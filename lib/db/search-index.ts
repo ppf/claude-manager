@@ -40,12 +40,12 @@ function getDatabase(): Sqlite3Database {
   }
 
   db = _BetterSqlite3!(dbPath)
-  
+
   // Enable WAL mode for better concurrency
   db.pragma('journal_mode = WAL')
-  
+
   initializeSchema()
-  
+
   return db
 }
 
@@ -64,7 +64,9 @@ function initializeSchema() {
   `)
 
   // Check schema version
-  const version = db.prepare('SELECT value FROM meta WHERE key = ?').get('schema_version') as { value: string } | undefined
+  const version = db.prepare('SELECT value FROM meta WHERE key = ?').get('schema_version') as
+    | { value: string }
+    | undefined
   const currentVersion = version ? parseInt(version.value) : 0
 
   if (currentVersion < SCHEMA_VERSION) {
@@ -84,7 +86,10 @@ function initializeSchema() {
     `)
 
     // Update schema version
-    db.prepare('INSERT OR REPLACE INTO meta (key, value) VALUES (?, ?)').run('schema_version', SCHEMA_VERSION.toString())
+    db.prepare('INSERT OR REPLACE INTO meta (key, value) VALUES (?, ?)').run(
+      'schema_version',
+      SCHEMA_VERSION.toString()
+    )
   }
 }
 
@@ -93,15 +98,17 @@ function initializeSchema() {
  */
 export function upsertDocument(doc: SearchDocument): void {
   const db = getDatabase()
-  
+
   // Remove existing document
   db.prepare('DELETE FROM search_index WHERE id = ?').run(doc.id)
-  
+
   // Insert new document
-  db.prepare(`
+  db.prepare(
+    `
     INSERT INTO search_index (id, type, title, path, body)
     VALUES (?, ?, ?, ?, ?)
-  `).run(doc.id, doc.type, doc.title, doc.path, doc.body)
+  `
+  ).run(doc.id, doc.type, doc.title, doc.path, doc.body)
 }
 
 /**
@@ -123,8 +130,12 @@ export function query(
   const db = getDatabase()
 
   // Sanitize query for FTS5
-  const sanitizedQuery = searchQuery.trim().replace(/[^\w\s-]/g, '').split(/\s+/).join(' OR ')
-  
+  const sanitizedQuery = searchQuery
+    .trim()
+    .replace(/[^\w\s-]/g, '')
+    .split(/\s+/)
+    .join(' OR ')
+
   if (!sanitizedQuery) return []
 
   // Build SQL query
@@ -195,4 +206,3 @@ export function closeDatabase(): void {
     db = null
   }
 }
-

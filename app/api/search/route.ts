@@ -15,7 +15,7 @@ async function ensureInitialized() {
 
   try {
     const count = getDocumentCount()
-    
+
     if (count === 0) {
       // Database is empty, rebuild index
       await rebuildSearchIndex()
@@ -48,11 +48,14 @@ export async function GET(request: NextRequest) {
 
     // Validate type if provided
     if (type && !['config', 'skill', 'plugin', 'mcp'].includes(type)) {
-      return errorResponse({
-        type: 'validation',
-        message: 'Invalid type parameter. Must be one of: config, skill, plugin, mcp',
-        recoverable: true,
-      }, 400)
+      return errorResponse(
+        {
+          type: 'validation',
+          message: 'Invalid type parameter. Must be one of: config, skill, plugin, mcp',
+          recoverable: true,
+        },
+        400
+      )
     }
 
     // Execute search
@@ -61,11 +64,13 @@ export async function GET(request: NextRequest) {
     return successResponse(results)
   } catch (error) {
     console.error('Search error:', error)
-    return errorResponse({
-      type: 'unknown',
-      message: error instanceof Error ? error.message : 'Search failed',
-      recoverable: true,
-    }, 500)
+    return errorResponse(
+      {
+        type: 'unknown',
+        message: error instanceof Error ? error.message : 'Search failed',
+        recoverable: true,
+      },
+      500
+    )
   }
 }
-

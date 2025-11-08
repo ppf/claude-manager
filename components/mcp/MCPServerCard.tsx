@@ -5,7 +5,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 import { Badge } from '@/components/ui/badge'
-import { Square, TestTube, FileText, Trash2, Settings, CheckCircle2, XCircle, Loader2 } from 'lucide-react'
+import {
+  Square,
+  TestTube,
+  FileText,
+  Trash2,
+  Settings,
+  CheckCircle2,
+  XCircle,
+  Loader2,
+} from 'lucide-react'
 import type { MCPServer } from '@/types/claude-config'
 
 interface MCPServerCardProps {
@@ -157,4 +166,3 @@ export function MCPServerCard({
     </Card>
   )
 }
-
