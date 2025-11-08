@@ -49,9 +49,7 @@ export default function SkillsPage() {
   }
 
   const localSkills = skills.filter((s) => s.source === 'local' || s.path !== '')
-  const marketplaceSkills = skills.filter(
-    (s) => s.source === 'marketplace' && s.path === ''
-  )
+  const marketplaceSkills = skills.filter((s) => s.source === 'marketplace' && s.path === '')
 
   if (isLoading) {
     return <div className="p-8">Loading skills...</div>
@@ -69,12 +67,8 @@ export default function SkillsPage() {
 
       <Tabs defaultValue="installed">
         <TabsList>
-          <TabsTrigger value="installed">
-            Installed ({localSkills.length})
-          </TabsTrigger>
-          <TabsTrigger value="marketplace">
-            Marketplace ({marketplaceSkills.length})
-          </TabsTrigger>
+          <TabsTrigger value="installed">Installed ({localSkills.length})</TabsTrigger>
+          <TabsTrigger value="marketplace">Marketplace ({marketplaceSkills.length})</TabsTrigger>
         </TabsList>
 
         <TabsContent value="installed" className="mt-6">
@@ -94,11 +88,7 @@ export default function SkillsPage() {
         </TabsContent>
       </Tabs>
 
-      <CreateSkillWizard
-        open={showWizard}
-        onOpenChange={setShowWizard}
-        templates={templates}
-      />
+      <CreateSkillWizard open={showWizard} onOpenChange={setShowWizard} templates={templates} />
     </div>
   )
 }
