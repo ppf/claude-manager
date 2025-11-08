@@ -11,6 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { useConfirmation } from '@/components/ui/confirmation-dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
@@ -27,6 +28,7 @@ export default function MCPPage() {
   const [isLogsDialogOpen, setIsLogsDialogOpen] = useState(false)
   const [selectedServer, setSelectedServer] = useState<MCPServer | null>(null)
   const [logs, setLogs] = useState<string[]>([])
+  const { confirm, dialog } = useConfirmation()
 
   // Form state
   const [formData, setFormData] = useState({
@@ -147,27 +149,32 @@ export default function MCPPage() {
   }
 
   async function handleDelete(serverId: string) {
-    if (!confirm('Are you sure you want to remove this MCP server?')) {
-      return
-    }
+    const server = servers.find((s) => s.id === serverId)
+    await confirm({
+      title: 'Remove MCP Server',
+      description: `Are you sure you want to remove "${server?.name || 'this server'}"? This action cannot be undone.`,
+      confirmLabel: 'Remove',
+      variant: 'destructive',
+      onConfirm: async () => {
+        try {
+          const response = await fetch(`/api/mcp/${serverId}`, {
+            method: 'DELETE',
+          })
 
-    try {
-      const response = await fetch(`/api/mcp/${serverId}`, {
-        method: 'DELETE',
-      })
+          const result = await response.json()
 
-      const result = await response.json()
-
-      if (result.success) {
-        toast.success('MCP server removed')
-        fetchServers()
-      } else {
-        toast.error(result.error?.message || 'Failed to remove server')
-      }
-    } catch (error) {
-      toast.error('Failed to remove server')
-      console.error('Delete error:', error)
-    }
+          if (result.success) {
+            toast.success('MCP server removed')
+            fetchServers()
+          } else {
+            toast.error(result.error?.message || 'Failed to remove server')
+          }
+        } catch (error) {
+          toast.error('Failed to remove server')
+          console.error('Delete error:', error)
+        }
+      },
+    })
   }
 
   async function handleTest(serverId: string) {
@@ -238,8 +245,10 @@ export default function MCPPage() {
   }
 
   return (
-    <div className="h-full overflow-auto">
-      <div className="max-w-6xl mx-auto p-6 space-y-6">
+    <>
+      {dialog}
+      <div className="h-full overflow-auto">
+        <div className="max-w-6xl mx-auto p-6 space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
@@ -423,5 +432,6 @@ export default function MCPPage() {
         </Dialog>
       </div>
     </div>
+    </>
   )
 }

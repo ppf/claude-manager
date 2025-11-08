@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { useConfirmation } from '@/components/ui/confirmation-dialog'
 import { Download, Trash2, Power } from 'lucide-react'
 import { toast } from 'sonner'
 import type { Skill } from '@/types/claude-config'
@@ -14,6 +16,7 @@ interface SkillCardProps {
 
 export function SkillCard({ skill, onUpdate }: SkillCardProps) {
   const [isLoading, setIsLoading] = useState(false)
+  const { confirm, dialog } = useConfirmation()
 
   async function handleInstall() {
     try {
@@ -43,27 +46,33 @@ export function SkillCard({ skill, onUpdate }: SkillCardProps) {
   }
 
   async function handleUninstall() {
-    if (!confirm(`Uninstall skill "${skill.name}"?`)) return
+    await confirm({
+      title: 'Uninstall Skill',
+      description: `Are you sure you want to uninstall "${skill.name}"? This action cannot be undone.`,
+      confirmLabel: 'Uninstall',
+      variant: 'destructive',
+      onConfirm: async () => {
+        try {
+          setIsLoading(true)
+          const response = await fetch(`/api/skills/${skill.id}`, {
+            method: 'DELETE',
+          })
 
-    try {
-      setIsLoading(true)
-      const response = await fetch(`/api/skills/${skill.id}`, {
-        method: 'DELETE',
-      })
+          const result = await response.json()
 
-      const result = await response.json()
-
-      if (result.success) {
-        toast.success('Skill uninstalled successfully')
-        onUpdate()
-      } else {
-        toast.error(result.error?.message || 'Failed to uninstall skill')
-      }
-    } catch {
-      toast.error('Failed to uninstall skill')
-    } finally {
-      setIsLoading(false)
-    }
+          if (result.success) {
+            toast.success('Skill uninstalled successfully')
+            onUpdate()
+          } else {
+            toast.error(result.error?.message || 'Failed to uninstall skill')
+          }
+        } catch {
+          toast.error('Failed to uninstall skill')
+        } finally {
+          setIsLoading(false)
+        }
+      },
+    })
   }
 
   async function handleToggle() {
@@ -93,16 +102,18 @@ export function SkillCard({ skill, onUpdate }: SkillCardProps) {
   const isInstalled = skill.source === 'local' || skill.path !== ''
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center justify-between">
-          <span>{skill.name}</span>
-          {skill.enabled && (
-            <span className="text-xs bg-green-500 text-white px-2 py-1 rounded">Enabled</span>
-          )}
-        </CardTitle>
-        <CardDescription>{skill.description}</CardDescription>
-      </CardHeader>
+    <>
+      {dialog}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between">
+            <span>{skill.name}</span>
+            {skill.enabled && (
+              <Badge className="bg-green-500 hover:bg-green-600">Enabled</Badge>
+            )}
+          </CardTitle>
+          <CardDescription>{skill.description}</CardDescription>
+        </CardHeader>
       <CardContent>
         <div className="flex gap-2">
           {!isInstalled ? (
@@ -135,5 +146,6 @@ export function SkillCard({ skill, onUpdate }: SkillCardProps) {
         </div>
       </CardContent>
     </Card>
+    </>
   )
 }
