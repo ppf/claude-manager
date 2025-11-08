@@ -50,9 +50,7 @@ export function SetupWizard() {
         </DialogHeader>
         <Alert>
           <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
-            Claude Code Manager needs to set up your environment.
-          </AlertDescription>
+          <AlertDescription>Claude Code Manager needs to set up your environment.</AlertDescription>
         </Alert>
         <Button onClick={handleInitialize} disabled={isInitializing} className="w-full">
           {isInitializing ? 'Initializing...' : 'Initialize Environment'}

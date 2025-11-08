@@ -17,10 +17,7 @@ export function errorResponse(error: ApiError, status = 500): NextResponse {
   return NextResponse.json(response, { status })
 }
 
-export function validationError(
-  message: string,
-  details?: Record<string, unknown>
-): NextResponse {
+export function validationError(message: string, details?: Record<string, unknown>): NextResponse {
   return errorResponse(
     {
       type: 'validation',

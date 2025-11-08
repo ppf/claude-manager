@@ -36,7 +36,11 @@ export function FileTreeNode({ node, level, selectedPath, onSelect }: FileTreeNo
       >
         {isDirectory && (
           <span className="flex-shrink-0">
-            {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+            {isExpanded ? (
+              <ChevronDown className="h-4 w-4" />
+            ) : (
+              <ChevronRight className="h-4 w-4" />
+            )}
           </span>
         )}
         {!isDirectory && <span className="w-4" />}
