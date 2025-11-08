@@ -35,7 +35,7 @@ export async function getLocalSkills(): Promise<Skill[]> {
 
       try {
         const content = await fs.readFile(skillFile, 'utf-8')
-        const { data, content: skillContent } = matter(content)
+        const { data } = matter(content)
 
         const isGit = await isGitRepository(entry.name)
         const commands = detectCommands(content)
