@@ -5,6 +5,7 @@ import { successResponse, errorResponse } from '@/lib/api/response'
 import { getDocumentCount } from '@/lib/db/search-index'
 
 export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
 
 // Initialize search index on first request
 let initialized = false

@@ -2,6 +2,8 @@ import { NextRequest } from 'next/server'
 import { readDirectory } from '@/lib/api/filesystem'
 import { successResponse, filesystemError } from '@/lib/api/response'
 
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams
