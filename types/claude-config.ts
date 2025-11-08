@@ -28,6 +28,9 @@ export interface Skill {
   source: 'local' | 'marketplace'
   version?: string
   author?: string
+  hasCommands?: boolean
+  commands?: string[]
+  tags?: string[]
 }
 
 export interface Plugin {

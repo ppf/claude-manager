@@ -33,8 +33,8 @@ Next.js full-stack web application for managing Claude Code configurations, skil
 | Phase | Status | Branch | Started | Completed | Document |
 |-------|--------|--------|---------|-----------|----------|
 | **Phase 0**: Discovery & Research | 🟢 Completed | `claude/phase-zero-discovery-011CUsufZT8rYDngarxmw5ek` | 2025-11-07 | 2025-11-07 | [→ Phase 0](./phase-0-discovery.md) |
-| **Phase 1**: Core Foundation | 🔴 Not Started | - | - | - | [→ Phase 1](./phase-1-core-foundation.md) |
-| **Phase 2**: Skills & Plugins | 🔴 Not Started | - | - | - | [→ Phase 2](./phase-2-skills-plugins.md) |
+| **Phase 1**: Core Foundation | 🟢 Completed | `claude/implement-phase-1-011CUupQnD6cUXhJmHW2j4qa` | 2025-11-07 | 2025-11-07 | [→ Phase 1](./phase-1-core-foundation.md) |
+| **Phase 2**: Skills & Plugins | 🟢 Completed | `skills-plugins` | 2025-11-07 | 2025-11-08 | [→ Phase 2](./phase-2-skills-plugins.md) |
 | **Phase 3**: Search & MCP | 🔴 Not Started | - | - | - | [→ Phase 3](./phase-3-search-mcp.md) |
 | **Phase 4**: Polish & Testing | 🔴 Not Started | - | - | - | [→ Phase 4](./phase-4-polish-testing.md) |
 
