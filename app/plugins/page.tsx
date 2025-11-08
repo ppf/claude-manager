@@ -127,9 +127,7 @@ export default function PluginsPage() {
         {/* Tabs */}
         <Tabs defaultValue="plugins" className="w-full">
           <TabsList>
-            <TabsTrigger value="plugins">
-              Command Skills ({pluginSkills.length})
-            </TabsTrigger>
+            <TabsTrigger value="plugins">Command Skills ({pluginSkills.length})</TabsTrigger>
             <TabsTrigger value="all">All Skills ({allSkills.length})</TabsTrigger>
             <TabsTrigger value="auto">Auto Skills ({regularSkills.length})</TabsTrigger>
           </TabsList>
@@ -214,4 +212,3 @@ export default function PluginsPage() {
     </div>
   )
 }
-
