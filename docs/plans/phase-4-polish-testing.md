@@ -560,6 +560,7 @@ MIT
 - [ ] Accessibility improvements (ARIA labels, keyboard navigation)
 - [ ] Loading states follow spec (200ms delay, 500ms minimum)
 - [ ] Performance targets met (see benchmarks doc)
+- [ ] Markdown preview for `.md` files (skills, plugins, configs)
 
 **Keyboard Shortcuts** (from GAPS):
 - Cmd/Ctrl+S: Save
@@ -567,6 +568,18 @@ MIT
 - Cmd/Ctrl+N: New skill
 - Escape: Close dialogs
 - Alt+1/2/3/4: Navigate sections
+
+**Markdown Preview Enhancement**:
+- Add rendered preview for `.md` files (SKILL.md, plugin docs, CLAUDE.md)
+- Two-column layout: Editor (left) + Preview (right)
+- Live preview updates as user types
+- Support for:
+  - Frontmatter rendering (YAML metadata display)
+  - Code syntax highlighting
+  - Tables, lists, headings
+  - Links (disabled for security)
+- Toggle button to show/hide preview
+- Libraries: `react-markdown` + `remark-gfm` + `rehype-highlight`
 
 **Note**: See `docs/plans/GAPS-AND-ADDITIONS.md` Task 4.3.4 expanded (lines 1060-1163) for complete UX specifications.
 
@@ -659,3 +672,4 @@ See design document for post-MVP enhancements:
 - Visual diff tool
 - Skill development toolkit
 - Remote access (authenticated)
+- Enhanced markdown editor with live preview (Phase 4.3.4)
