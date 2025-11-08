@@ -46,7 +46,7 @@ export async function readMCPConfig(): Promise<Record<string, MCPServer>> {
           id,
           name: id,
           command: (server.command as string) || '',
-          args: Array.isArray(server.args) ? server.args as string[] : [],
+          args: Array.isArray(server.args) ? (server.args as string[]) : [],
           env: (server.env as Record<string, string>) || {},
           enabled: (server.enabled as boolean) !== false,
         }
@@ -345,4 +345,3 @@ export async function getServerLogs(id: string): Promise<string[]> {
 
   return running.logs
 }
-

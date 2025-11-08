@@ -94,3 +94,4 @@ export function PluginCard({ skill, onToggle, onDelete }: PluginCardProps) {
     </Card>
   )
 }
+

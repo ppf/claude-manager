@@ -1,324 +1,270 @@
-# Accessibility Specification
+# Accessibility Requirements
 
-**Phase**: 4.3 (Documentation & Polish)  
-**Status**: 🟡 Specification  
-**Target**: WCAG 2.1 Level AA  
-**Last Updated**: 2025-11-06
-
----
-
-## Overview
-
-Claude Code Manager aims for WCAG 2.1 Level AA compliance to ensure the application is accessible to all users.
-
----
-
-## Accessibility Targets
-
-### WCAG 2.1 Level AA Compliance
-
-**Target**: 100% compliance with WCAG 2.1 Level AA  
-**Testing**: Manual and automated (axe-core, Lighthouse)
-
----
+**Goal**: WCAG 2.1 Level AA Compliance
 
 ## Keyboard Navigation
 
-### Global Shortcuts
+### Requirements
+
+- All interactive elements must be keyboard accessible
+- Visible focus indicators on all focusable elements
+- Logical tab order (top to bottom, left to right)
+- Skip navigation links for long content
+- Escape key closes dialogs and modals
+
+### Implementation Checklist
+
+- [ ] All buttons and links keyboard accessible
+- [ ] Form inputs navigable via Tab
+- [ ] Modal dialogs trap focus
+- [ ] Escape closes dialogs
+- [ ] Tab order is logical
+- [ ] Focus indicators visible and clear
+
+### Keyboard Shortcuts
 
 | Shortcut | Action |
 |----------|--------|
-| `Cmd/Ctrl+S` | Save current file |
-| `Cmd/Ctrl+K` | Open search |
-| `Cmd/Ctrl+N` | New skill |
-| `Escape` | Close dialog/modal |
-| `Alt+1` | Navigate to Configs |
-| `Alt+2` | Navigate to Skills |
-| `Alt+3` | Navigate to Plugins |
-| `Alt+4` | Navigate to MCP |
-
-### Component-Specific
-
-- **File Tree**: Arrow keys for navigation, Enter to open
-- **Editor**: Standard Monaco keyboard shortcuts
-- **Dialogs**: Tab to navigate, Escape to close
-- **Buttons**: Space or Enter to activate
-- **Links**: Enter to follow
-
-### Focus Management
-
-```typescript
-// Good: Trap focus in dialogs
-<Dialog onOpenChange={(open) => {
-  if (open) {
-    // Focus first focusable element
-    dialogRef.current?.querySelector('button, input')?.focus()
-  }
-}}>
-```
-
----
+| Tab | Next element |
+| Shift+Tab | Previous element |
+| Enter | Activate button/link |
+| Space | Toggle checkbox/switch |
+| Escape | Close dialog/modal |
+| Cmd/Ctrl+S | Save file |
+| Cmd/Ctrl+K | Open search |
+| Cmd/Ctrl+N | New skill |
+| Alt+1/2/3/4 | Navigate sections |
 
 ## Screen Reader Support
 
-### ARIA Labels
+### Requirements
 
-**Rule**: All interactive elements must have accessible names.
+- All non-text content has text alternatives
+- ARIA labels on all icons and icon-only buttons
+- ARIA live regions for dynamic content
+- Semantic HTML structure
+- Proper heading hierarchy
+
+### Implementation
 
 ```tsx
-// Good
-<button aria-label="Save file">
-  <SaveIcon />
+// Good: Icon button with ARIA label
+<button aria-label="Close dialog">
+  <X className="h-4 w-4" />
 </button>
 
-// Bad
-<button>
-  <SaveIcon />
-</button>
-```
-
-### ARIA Live Regions
-
-**Rule**: Dynamic content changes must be announced.
-
-```tsx
-// Toast notifications
-<div role="status" aria-live="polite" aria-atomic="true">
-  {message}
+// Good: Loading state with ARIA
+<div role="status" aria-live="polite">
+  <span className="sr-only">Loading...</span>
+  <Spinner />
 </div>
 
-// Loading states
-<div role="status" aria-live="polite" aria-busy={isLoading}>
-  {isLoading ? 'Loading...' : 'Content loaded'}
-</div>
+// Good: Form input with label
+<label htmlFor="email">Email</label>
+<input id="email" type="email" />
 ```
 
-### Semantic HTML
+### ARIA Labels Checklist
 
-**Rule**: Use semantic HTML elements when possible.
-
-```tsx
-// Good
-<nav>
-  <ul>
-    <li><a href="/configs">Configs</a></li>
-  </ul>
-</nav>
-
-// Bad
-<div>
-  <div onClick={() => navigate('/configs')}>Configs</div>
-</div>
-```
-
----
+- [ ] All icon-only buttons have `aria-label`
+- [ ] All form inputs have associated labels
+- [ ] Dynamic content has `aria-live` regions
+- [ ] Loading states have `aria-busy`
+- [ ] Error messages have `aria-invalid` and `aria-describedby`
 
 ## Color and Contrast
 
-### Contrast Ratios
+### Requirements
 
-**Minimum contrast ratios** (WCAG 2.1 Level AA):
-- Normal text: 4.5:1
-- Large text (18pt+): 3:1
-- UI components: 3:1
+- Minimum contrast ratio: 4.5:1 for text
+- Minimum contrast ratio: 3:1 for large text (18pt+)
+- Don't rely on color alone to convey information
+- Support for high contrast mode
 
-### Color Independence
-
-**Rule**: Never rely on color alone to convey information.
-
-```tsx
-// Good: Icon + color
-<Alert variant="error">
-  <AlertCircle className="text-red-500" />
-  <span>Error: File not found</span>
-</Alert>
-
-// Bad: Color only
-<span className="text-red-500">Error</span>
-```
-
----
-
-## Form Accessibility
-
-### Labels
-
-**Rule**: All form inputs must have associated labels.
-
-```tsx
-// Good
-<label htmlFor="skill-name">Skill Name</label>
-<input id="skill-name" type="text" />
-
-// Also good (implicit)
-<label>
-  Skill Name
-  <input type="text" />
-</label>
-```
-
-### Error Messages
-
-**Rule**: Error messages must be programmatically associated with inputs.
-
-```tsx
-<label htmlFor="email">Email</label>
-<input
-  id="email"
-  type="email"
-  aria-invalid={!!error}
-  aria-describedby={error ? 'email-error' : undefined}
-/>
-{error && <span id="email-error" role="alert">{error}</span>}
-```
-
-### Required Fields
-
-```tsx
-<label htmlFor="name">
-  Name <span aria-label="required">*</span>
-</label>
-<input id="name" required aria-required="true" />
-```
-
----
-
-## Focus Indicators
-
-### Visible Focus
-
-**Rule**: All focusable elements must have visible focus indicators.
+### Implementation
 
 ```css
-/* Good: Custom focus ring */
-.btn:focus-visible {
-  outline: 2px solid var(--focus-color);
-  outline-offset: 2px;
+/* Good: Sufficient contrast */
+.text-primary {
+  color: #1a1a1a; /* Dark text on light background */
 }
 
-/* Bad: Removing focus outline */
-.btn:focus {
-  outline: none; /* Never do this without replacement */
+/* Good: Visual indicator beyond color */
+.error-input {
+  border-color: red;
+  border-width: 2px; /* Width indicates error */
 }
 ```
 
-### Skip Links
+### Contrast Checklist
 
-**Rule**: Provide skip links for keyboard users.
+- [ ] Text meets 4.5:1 contrast ratio
+- [ ] Large text meets 3:1 contrast ratio
+- [ ] Interactive elements have clear focus states
+- [ ] Error states use more than just color
+- [ ] Test with high contrast mode
+
+## Focus Management
+
+### Requirements
+
+- Focus visible at all times
+- Focus moves logically
+- Focus not lost during operations
+- Modal dialogs trap focus
+
+### Implementation
 
 ```tsx
-<a href="#main-content" className="skip-link">
-  Skip to main content
-</a>
+// Focus trap in dialog
+<Dialog onOpenChange={setOpen}>
+  <DialogContent onEscapeKeyDown={() => setOpen(false)}>
+    {/* Focus trapped within dialog */}
+  </DialogContent>
+</Dialog>
+
+// Restore focus after operation
+function handleSave() {
+  const currentFocus = document.activeElement
+  await save()
+  currentFocus?.focus()
+}
 ```
 
----
+### Focus Checklist
 
-## Images and Icons
+- [ ] All focusable elements have visible focus indicator
+- [ ] Focus moves in logical order
+- [ ] Dialogs trap focus
+- [ ] Focus restored after modal closes
+- [ ] No keyboard traps (unless intentional)
 
-### Alt Text
+## Testing
 
-**Rule**: All images must have alt text (or empty alt for decorative images).
+### Manual Testing
+
+1. **Keyboard Navigation**:
+   - Tab through entire interface
+   - Verify all interactive elements reachable
+   - Check focus indicators visible
+   - Test keyboard shortcuts
+
+2. **Screen Reader Testing**:
+   - Test with NVDA (Windows) or VoiceOver (Mac)
+   - Verify all content announced
+   - Check ARIA labels correct
+   - Test form inputs
+
+3. **Contrast Testing**:
+   - Use browser DevTools contrast checker
+   - Test with high contrast mode
+   - Verify color-blind friendly
+
+### Automated Testing
+
+```bash
+# Install axe DevTools extension
+# Run accessibility audit in Chrome DevTools
+
+# Or use automated testing
+pnpm test:a11y
+```
+
+### Tools
+
+- **Browser Extensions**:
+  - axe DevTools
+  - WAVE
+  - Lighthouse
+
+- **Screen Readers**:
+  - NVDA (Windows)
+  - JAWS (Windows)
+  - VoiceOver (Mac)
+
+- **Contrast Checkers**:
+  - WebAIM Contrast Checker
+  - Chrome DevTools Contrast Ratio
+
+## Common Patterns
+
+### Button
 
 ```tsx
-// Informative image
-<img src="skill-icon.png" alt="Brainstorming skill icon" />
-
-// Decorative image
-<img src="decoration.png" alt="" />
-
-// Icon with adjacent text
-<button>
-  <SaveIcon aria-hidden="true" />
-  Save
+// Accessible button
+<button
+  type="button"
+  aria-label="Delete item"
+  onClick={handleDelete}
+>
+  <Trash className="h-4 w-4" />
 </button>
 ```
 
----
-
-## Modals and Dialogs
-
-### Focus Trap
-
-**Rule**: Focus must be trapped within open modals.
+### Form Input
 
 ```tsx
-import { Dialog } from '@radix-ui/react-dialog'
+// Accessible form input
+<div>
+  <label htmlFor="username" className="block mb-2">
+    Username
+  </label>
+  <input
+    id="username"
+    type="text"
+    aria-required="true"
+    aria-invalid={hasError}
+    aria-describedby={hasError ? "username-error" : undefined}
+  />
+  {hasError && (
+    <p id="username-error" className="text-red-500">
+      Username is required
+    </p>
+  )}
+</div>
+```
 
-<Dialog>
-  <DialogContent>
-    {/* Focus automatically trapped */}
+### Loading State
+
+```tsx
+// Accessible loading state
+<div role="status" aria-live="polite" aria-busy={isLoading}>
+  {isLoading ? (
+    <>
+      <span className="sr-only">Loading content...</span>
+      <Spinner />
+    </>
+  ) : (
+    <Content />
+  )}
+</div>
+```
+
+### Modal Dialog
+
+```tsx
+// Accessible modal
+<Dialog open={open} onOpenChange={setOpen}>
+  <DialogContent
+    aria-labelledby="dialog-title"
+    aria-describedby="dialog-description"
+  >
+    <DialogTitle id="dialog-title">Confirm Action</DialogTitle>
+    <DialogDescription id="dialog-description">
+      Are you sure you want to continue?
+    </DialogDescription>
+    <DialogFooter>
+      <Button onClick={() => setOpen(false)}>Cancel</Button>
+      <Button onClick={handleConfirm}>Confirm</Button>
+    </DialogFooter>
   </DialogContent>
 </Dialog>
 ```
 
-### Close Mechanisms
-
-**Rule**: Modals must have multiple ways to close (X button, Escape key, backdrop click).
-
----
-
-## Testing Checklist
-
-### Automated Testing
-
-- [ ] Run axe-core accessibility tests
-- [ ] Lighthouse accessibility score > 95
-- [ ] No automatic WCAG violations
-
-### Manual Testing
-
-- [ ] Navigate entire app with keyboard only
-- [ ] Test with screen reader (NVDA, JAWS, VoiceOver)
-- [ ] Verify all interactive elements are focusable
-- [ ] Check color contrast ratios
-- [ ] Test with browser zoom at 200%
-- [ ] Verify focus indicators are visible
-- [ ] Test skip links work
-- [ ] Verify ARIA labels are descriptive
-
-### Screen Reader Testing
-
-**Test with**:
-- NVDA (Windows)
-- JAWS (Windows)
-- VoiceOver (macOS)
-- TalkBack (Android, if mobile support added)
-
----
-
-## Common Pitfalls
-
-### ❌ Don't
-
-- Remove focus outlines without replacement
-- Use `div` or `span` as buttons without proper ARIA
-- Rely on color alone for information
-- Use placeholder as label replacement
-- Auto-play audio/video
-- Use `tabindex` > 0
-
-### ✅ Do
-
-- Use semantic HTML
-- Provide keyboard alternatives for all mouse actions
-- Include ARIA labels for icon-only buttons
-- Test with actual assistive technology
-- Provide text alternatives for non-text content
-- Ensure sufficient color contrast
-
----
-
 ## Resources
 
 - [WCAG 2.1 Guidelines](https://www.w3.org/WAI/WCAG21/quickref/)
+- [MDN Accessibility](https://developer.mozilla.org/en-US/docs/Web/Accessibility)
+- [WebAIM](https://webaim.org/)
+- [A11y Project](https://www.a11yproject.com/)
 - [ARIA Authoring Practices](https://www.w3.org/WAI/ARIA/apg/)
-- [axe DevTools](https://www.deque.com/axe/devtools/)
-- [WebAIM Contrast Checker](https://webaim.org/resources/contrastchecker/)
-
----
-
-**Related Documents**:
-- `docs/ux/loading-states.md` - Loading state patterns
-- `docs/plans/phase-4-polish-testing.md` - Implementation phase
-

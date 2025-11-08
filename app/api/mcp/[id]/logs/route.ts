@@ -4,10 +4,7 @@ import { successResponse, errorResponse } from '@/lib/api/response'
 
 export const runtime = 'nodejs'
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params
     const logs = await getServerLogs(id)
@@ -22,4 +19,3 @@ export async function GET(
     })
   }
 }
-

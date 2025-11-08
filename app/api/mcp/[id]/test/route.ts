@@ -4,20 +4,20 @@ import { successResponse, errorResponse } from '@/lib/api/response'
 
 export const runtime = 'nodejs'
 
-export async function POST(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params
     const server = await getServer(id)
 
     if (!server) {
-      return errorResponse({
-        type: 'unknown',
-        message: `Server '${id}' not found`,
-        recoverable: false,
-      }, 404)
+      return errorResponse(
+        {
+          type: 'unknown',
+          message: `Server '${id}' not found`,
+          recoverable: false,
+        },
+        404
+      )
     }
 
     const success = await testMCPConnection(server)
@@ -28,11 +28,13 @@ export async function POST(
     })
   } catch (error) {
     console.error('Error testing MCP connection:', error)
-    return errorResponse({
-      type: 'unknown',
-      message: error instanceof Error ? error.message : 'Failed to test connection',
-      recoverable: true,
-    }, 500)
+    return errorResponse(
+      {
+        type: 'unknown',
+        message: error instanceof Error ? error.message : 'Failed to test connection',
+        recoverable: true,
+      },
+      500
+    )
   }
 }
-
