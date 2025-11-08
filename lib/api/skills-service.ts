@@ -5,6 +5,21 @@ import { CLAUDE_PATHS } from '@/lib/claude/paths'
 import type { Skill } from '@/types/claude-config'
 import { isGitRepository, cloneRepository } from '@/lib/git/git-manager'
 
+/**
+ * Detect commands in skill content by looking for /command patterns
+ */
+export function detectCommands(content: string): string[] {
+  const commandPattern = /\/([a-z][a-z0-9-]*)/g
+  const matches = content.matchAll(commandPattern)
+  const commands = new Set<string>()
+  
+  for (const match of matches) {
+    commands.add(match[1])
+  }
+  
+  return Array.from(commands)
+}
+
 export async function getLocalSkills(): Promise<Skill[]> {
   try {
     const skillsDir = CLAUDE_PATHS.SKILLS
@@ -20,9 +35,10 @@ export async function getLocalSkills(): Promise<Skill[]> {
 
       try {
         const content = await fs.readFile(skillFile, 'utf-8')
-        const { data } = matter(content)
+        const { data, content: skillContent } = matter(content)
 
         const isGit = await isGitRepository(entry.name)
+        const commands = detectCommands(content)
 
         skills.push({
           id: entry.name,
@@ -33,6 +49,9 @@ export async function getLocalSkills(): Promise<Skill[]> {
           source: isGit ? 'marketplace' : 'local',
           version: data.version,
           author: data.author,
+          hasCommands: commands.length > 0,
+          commands: commands.length > 0 ? commands : undefined,
+          tags: data.tags || [],
         })
       } catch (error) {
         // Skip invalid skills

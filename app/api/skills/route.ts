@@ -6,6 +6,7 @@ export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams
     const source = searchParams.get('source') // 'local' | 'marketplace' | 'all'
+    const type = searchParams.get('type') // 'plugin' | 'skill' | 'all'
 
     let skills = []
 
@@ -16,6 +17,13 @@ export async function GET(request: NextRequest) {
     } else {
       const [local, marketplace] = await Promise.all([getLocalSkills(), getMarketplaceSkills()])
       skills = [...local, ...marketplace]
+    }
+
+    // Filter by type if requested
+    if (type === 'plugin') {
+      skills = skills.filter((skill) => skill.hasCommands)
+    } else if (type === 'skill') {
+      skills = skills.filter((skill) => !skill.hasCommands)
     }
 
     return successResponse(skills)
