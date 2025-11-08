@@ -26,12 +26,13 @@ export async function cloneRepository(repo: GitRepository): Promise<void> {
       targetPath,
       [repo.branch ? `--branch=${repo.branch}` : ''].filter(Boolean)
     )
-  } catch (error: any) {
+  } catch (error) {
     // Detect authentication errors
+    const errorMessage = error instanceof Error ? error.message : String(error)
     if (
-      error.message.includes('Authentication failed') ||
-      error.message.includes('Permission denied') ||
-      error.message.includes('could not read Username')
+      errorMessage.includes('Authentication failed') ||
+      errorMessage.includes('Permission denied') ||
+      errorMessage.includes('could not read Username')
     ) {
       throw new GitAuthError(
         'Authentication required. Please ensure you have access to this repository. ' +
