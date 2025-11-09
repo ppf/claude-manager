@@ -26,6 +26,7 @@ export interface Skill {
   path: string
   enabled: boolean
   source: 'local' | 'marketplace'
+  origin?: 'local' | 'marketplace'  // Tracks installation source: 'local' = user-created, 'marketplace' = installed from git
   version?: string
   author?: string
   hasCommands?: boolean

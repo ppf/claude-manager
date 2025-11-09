@@ -108,9 +108,16 @@ export function SkillCard({ skill, onUpdate }: SkillCardProps) {
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
             <span>{skill.name}</span>
-            {skill.enabled && (
-              <Badge className="bg-green-500 hover:bg-green-600">Enabled</Badge>
-            )}
+            <div className="flex items-center gap-2">
+              {skill.origin && (
+                <Badge variant={skill.origin === 'marketplace' ? 'secondary' : 'outline'}>
+                  {skill.origin === 'marketplace' ? 'Marketplace' : 'Local'}
+                </Badge>
+              )}
+              {skill.enabled && (
+                <Badge className="bg-green-500 hover:bg-green-600">Enabled</Badge>
+              )}
+            </div>
           </CardTitle>
           <CardDescription>{skill.description}</CardDescription>
         </CardHeader>
