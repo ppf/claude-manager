@@ -248,3 +248,58 @@ export async function toggleSkill(skillId: string, enabled: boolean): Promise<vo
   const updated = matter.stringify(skillContent, data)
   await fs.writeFile(skillPath, updated, 'utf-8')
 }
+
+export async function checkSkillUpdates(skillId: string): Promise<{
+  updateAvailable: boolean
+  currentVersion: string
+  latestVersion: string
+  gitStatus?: {
+    ahead: number
+    behind: number
+    modified: boolean
+  }
+}> {
+  const skillPath = path.join(CLAUDE_PATHS.SKILLS, skillId)
+
+  // Check if it's a git repository
+  const isGit = await isGitRepository(skillId)
+  if (!isGit) {
+    return {
+      updateAvailable: false,
+      currentVersion: 'local',
+      latestVersion: 'local',
+    }
+  }
+
+  // Import git functions
+  const { checkForUpdates } = await import('@/lib/git/git-manager')
+  
+  const updateStatus = await checkForUpdates(skillId)
+
+  return {
+    updateAvailable: updateStatus.updateAvailable,
+    currentVersion: updateStatus.currentVersion,
+    latestVersion: updateStatus.latestVersion,
+    gitStatus: {
+      ahead: updateStatus.ahead,
+      behind: updateStatus.behind,
+      modified: updateStatus.modified,
+    },
+  }
+}
+
+export async function updateSkill(skillId: string): Promise<void> {
+  const skillPath = path.join(CLAUDE_PATHS.SKILLS, skillId)
+
+  // Check if it's a git repository
+  const isGit = await isGitRepository(skillId)
+  if (!isGit) {
+    throw new Error('Cannot update: Skill is not a git repository')
+  }
+
+  // Import git functions
+  const { updateRepository } = await import('@/lib/git/git-manager')
+  
+  // Update the repository
+  await updateRepository(skillId)
+}

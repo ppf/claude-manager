@@ -32,6 +32,13 @@ export interface Skill {
   hasCommands?: boolean
   commands?: string[]
   tags?: string[]
+  updateAvailable?: boolean
+  latestVersion?: string
+  gitStatus?: {
+    ahead: number
+    behind: number
+    modified: boolean
+  }
 }
 
 export interface Plugin {

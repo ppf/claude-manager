@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server'
-import { installSkill, uninstallSkill, toggleSkill } from '@/lib/api/skills-service'
+import { installSkill, uninstallSkill, toggleSkill, checkSkillUpdates, updateSkill } from '@/lib/api/skills-service'
 import { successResponse, errorResponse } from '@/lib/api/response'
 import { GitAuthError } from '@/lib/git/git-manager'
 
@@ -14,6 +14,16 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
     if (action === 'toggle') {
       await toggleSkill(params.id, enabled)
+      return successResponse({ message: 'Skill updated successfully' })
+    }
+
+    if (action === 'check-update') {
+      const updateStatus = await checkSkillUpdates(params.id)
+      return successResponse(updateStatus)
+    }
+
+    if (action === 'update') {
+      await updateSkill(params.id)
       return successResponse({ message: 'Skill updated successfully' })
     }
 
