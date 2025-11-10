@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { useConfirmation } from '@/components/ui/confirmation-dialog'
-import { Download, Trash2, Power } from 'lucide-react'
+import { Download, Trash2, Power, RefreshCw } from 'lucide-react'
 import { toast } from 'sonner'
 import type { Skill } from '@/types/claude-config'
 
@@ -99,7 +99,33 @@ export function SkillCard({ skill, onUpdate }: SkillCardProps) {
     }
   }
 
-  const isInstalled = skill.source === 'local' || skill.path !== ''
+  async function handleUpdate() {
+    try {
+      setIsLoading(true)
+      const response = await fetch(`/api/skills/${skill.id}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'update' }),
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        toast.success('Skill updated successfully')
+        onUpdate()
+      } else {
+        toast.error(result.error?.message || 'Failed to update skill')
+      }
+    } catch {
+      toast.error('Failed to update skill')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  // Check if skill is installed (has filesystem path)
+  const isInstalled = skill.path !== ''
+  const isMarketplaceOrigin = skill.origin === 'marketplace'
 
   return (
     <>
@@ -116,6 +142,11 @@ export function SkillCard({ skill, onUpdate }: SkillCardProps) {
               )}
               {skill.enabled && (
                 <Badge className="bg-green-500 hover:bg-green-600">Enabled</Badge>
+              )}
+              {skill.updateAvailable && (
+                <Badge variant="outline" className="border-orange-500 text-orange-500">
+                  Update Available
+                </Badge>
               )}
             </div>
           </CardTitle>
@@ -139,6 +170,17 @@ export function SkillCard({ skill, onUpdate }: SkillCardProps) {
                 <Power className="h-4 w-4 mr-2" />
                 {skill.enabled ? 'Disable' : 'Enable'}
               </Button>
+              {isMarketplaceOrigin && skill.updateAvailable && (
+                <Button
+                  onClick={handleUpdate}
+                  disabled={isLoading}
+                  variant="default"
+                  size="sm"
+                >
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  Update
+                </Button>
+              )}
               <Button
                 onClick={handleUninstall}
                 disabled={isLoading}

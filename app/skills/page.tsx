@@ -20,6 +20,49 @@ export default function SkillsPage() {
     fetchTemplates()
   }, [])
 
+  useEffect(() => {
+    // Check for updates on installed marketplace skills
+    async function checkUpdates() {
+      const marketplaceInstalled = skills.filter(
+        (s) => s.path !== '' && s.origin === 'marketplace'
+      )
+
+      for (const skill of marketplaceInstalled) {
+        try {
+          const response = await fetch(`/api/skills/${skill.id}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'check-update' }),
+          })
+
+          const result = await response.json()
+
+          if (result.success && result.data?.updateAvailable) {
+            // Update the skill in state
+            setSkills((prev) =>
+              prev.map((s) =>
+                s.id === skill.id
+                  ? {
+                      ...s,
+                      updateAvailable: result.data.updateAvailable,
+                      latestVersion: result.data.latestVersion,
+                      gitStatus: result.data.gitStatus,
+                    }
+                  : s
+              )
+            )
+          }
+        } catch (error) {
+          console.error(`Failed to check updates for ${skill.id}:`, error)
+        }
+      }
+    }
+
+    if (skills.length > 0) {
+      checkUpdates()
+    }
+  }, [skills.length])
+
   async function fetchSkills() {
     try {
       setIsLoading(true)
@@ -48,8 +91,10 @@ export default function SkillsPage() {
     }
   }
 
-  const localSkills = skills.filter((s) => s.source === 'local' || s.path !== '')
-  const marketplaceSkills = skills.filter((s) => s.source === 'marketplace' && s.path === '')
+  // Installed: All skills with filesystem path (local + marketplace-installed)
+  const installedSkills = skills.filter((s) => s.path !== '')
+  // Available: Uninstalled marketplace skills only
+  const availableSkills = skills.filter((s) => s.path === '')
 
   if (isLoading) {
     return <div className="p-8">Loading skills...</div>
@@ -67,13 +112,13 @@ export default function SkillsPage() {
 
       <Tabs defaultValue="installed">
         <TabsList>
-          <TabsTrigger value="installed">Installed ({localSkills.length})</TabsTrigger>
-          <TabsTrigger value="marketplace">Marketplace ({marketplaceSkills.length})</TabsTrigger>
+          <TabsTrigger value="installed">Installed ({installedSkills.length})</TabsTrigger>
+          <TabsTrigger value="marketplace">Marketplace ({availableSkills.length})</TabsTrigger>
         </TabsList>
 
         <TabsContent value="installed" className="mt-6">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {localSkills.map((skill) => (
+            {installedSkills.map((skill) => (
               <SkillCard key={skill.id} skill={skill} onUpdate={fetchSkills} />
             ))}
           </div>
@@ -81,7 +126,7 @@ export default function SkillsPage() {
 
         <TabsContent value="marketplace" className="mt-6">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {marketplaceSkills.map((skill) => (
+            {availableSkills.map((skill) => (
               <SkillCard key={skill.id} skill={skill} onUpdate={fetchSkills} />
             ))}
           </div>
