@@ -1,13 +1,7 @@
 import fs from 'fs/promises'
 import { spawn, ChildProcess } from 'child_process'
+import { CLAUDE_PATHS } from '@/lib/claude/paths'
 import type { MCPServer } from '@/types/claude-config'
-import {
-  getAllClaudeMCPServers,
-  getClaudeMCPServer,
-  updateClaudeMCPServerStatus,
-  createClaudeMCPTemplate,
-  mcpServerExists,
-} from './claude-mcp-config'
 
 export interface MCPServerStatus {
   running: boolean
@@ -27,11 +21,76 @@ interface RunningServer {
 const runningServers = new Map<string, RunningServer>()
 
 /**
- * Get all MCP servers from Claude's configuration
+ * Get MCP config file path
+ */
+function getMCPConfigPath(): string {
+  return process.env.MCP_CONFIG_PATH || CLAUDE_PATHS.MCP_CONFIG
+}
+
+/**
+ * Read MCP configuration file
+ */
+export async function readMCPConfig(): Promise<Record<string, MCPServer>> {
+  try {
+    const configPath = getMCPConfigPath()
+    const content = await fs.readFile(configPath, 'utf-8')
+    const config = JSON.parse(content)
+
+    // Convert to MCPServer format
+    const servers: Record<string, MCPServer> = {}
+
+    if (config.mcpServers && typeof config.mcpServers === 'object') {
+      for (const [id, serverConfig] of Object.entries(config.mcpServers)) {
+        const server = serverConfig as Record<string, unknown>
+        servers[id] = {
+          id,
+          name: id,
+          command: (server.command as string) || '',
+          args: Array.isArray(server.args) ? (server.args as string[]) : [],
+          env: (server.env as Record<string, string>) || {},
+          enabled: (server.enabled as boolean) !== false,
+        }
+      }
+    }
+
+    return servers
+  } catch (error) {
+    // Config file might not exist yet
+    console.warn('Failed to read MCP config:', error)
+    return {}
+  }
+}
+
+/**
+ * Write MCP configuration file
+ */
+export async function writeMCPConfig(servers: Record<string, MCPServer>): Promise<void> {
+  const configPath = getMCPConfigPath()
+
+  // Convert to config file format
+  const config = {
+    mcpServers: Object.fromEntries(
+      Object.entries(servers).map(([id, server]) => [
+        id,
+        {
+          command: server.command,
+          args: server.args || [],
+          env: server.env || {},
+          enabled: server.enabled,
+        },
+      ])
+    ),
+  }
+
+  await fs.writeFile(configPath, JSON.stringify(config, null, 2), 'utf-8')
+}
+
+/**
+ * Get all MCP servers
  */
 export async function getAllServers(): Promise<MCPServer[]> {
-  const servers = await getAllClaudeMCPServers()
-  return servers.map((server) => ({
+  const servers = await readMCPConfig()
+  return Object.values(servers).map((server) => ({
     ...server,
     status: getServerStatusSync(server.id),
   }))
@@ -41,7 +100,8 @@ export async function getAllServers(): Promise<MCPServer[]> {
  * Get a single MCP server
  */
 export async function getServer(id: string): Promise<MCPServer | null> {
-  const server = await getClaudeMCPServer(id)
+  const servers = await readMCPConfig()
+  const server = servers[id]
 
   if (!server) return null
 
@@ -52,30 +112,16 @@ export async function getServer(id: string): Promise<MCPServer | null> {
 }
 
 /**
- * Add a new MCP server to a custom template
+ * Add a new MCP server
  */
 export async function addServer(server: Omit<MCPServer, 'id'>): Promise<MCPServer> {
+  const servers = await readMCPConfig()
+
   // Generate ID from name
   const id = server.name.toLowerCase().replace(/[^a-z0-9-]/g, '-')
 
-  // Check if server already exists
-  if (await mcpServerExists(id)) {
+  if (servers[id]) {
     throw new Error(`Server with ID '${id}' already exists`)
-  }
-
-  // Create a custom template with this server
-  // Use 'custom' template for user-added servers
-  await createClaudeMCPTemplate('custom', {
-    [id]: {
-      command: server.command,
-      args: server.args || [],
-      env: server.env || {},
-    },
-  })
-
-  // If server should be enabled, update settings
-  if (server.enabled !== false) {
-    await updateClaudeMCPServerStatus(id, true)
   }
 
   const newServer: MCPServer = {
@@ -84,18 +130,19 @@ export async function addServer(server: Omit<MCPServer, 'id'>): Promise<MCPServe
     enabled: server.enabled !== false,
   }
 
+  servers[id] = newServer
+  await writeMCPConfig(servers)
+
   return newServer
 }
 
 /**
  * Update an existing MCP server
- * Note: For Claude-based config, we can only toggle enabled status
- * To modify command/args/env, the template file must be edited
  */
 export async function updateServer(id: string, updates: Partial<MCPServer>): Promise<MCPServer> {
-  const server = await getClaudeMCPServer(id)
+  const servers = await readMCPConfig()
 
-  if (!server) {
+  if (!servers[id]) {
     throw new Error(`Server '${id}' not found`)
   }
 
@@ -104,31 +151,24 @@ export async function updateServer(id: string, updates: Partial<MCPServer>): Pro
     await stopServer(id)
   }
 
-  // Update enabled status in settings.local.json
-  if (typeof updates.enabled === 'boolean') {
-    await updateClaudeMCPServerStatus(id, updates.enabled)
-  }
-
-  // Note: Other updates (command, args, env) require template file modification
-  // This is a limitation of the current implementation
-  // TODO: Implement template file editing for full CRUD support
-
-  return {
-    ...server,
+  servers[id] = {
+    ...servers[id],
     ...updates,
     id, // Preserve ID
   }
+
+  await writeMCPConfig(servers)
+
+  return servers[id]
 }
 
 /**
  * Delete an MCP server
- * Note: For Claude-based config, this only disables the server
- * The actual removal requires editing/deleting the template file
  */
 export async function deleteServer(id: string): Promise<void> {
-  const server = await getClaudeMCPServer(id)
+  const servers = await readMCPConfig()
 
-  if (!server) {
+  if (!servers[id]) {
     throw new Error(`Server '${id}' not found`)
   }
 
@@ -137,10 +177,8 @@ export async function deleteServer(id: string): Promise<void> {
     await stopServer(id)
   }
 
-  // Disable the server in settings.local.json
-  await updateClaudeMCPServerStatus(id, false)
-
-  // TODO: For full deletion, remove from custom template if it exists there
+  delete servers[id]
+  await writeMCPConfig(servers)
 }
 
 /**
