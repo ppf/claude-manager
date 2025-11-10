@@ -25,9 +25,9 @@ export function MarkdownPreview({ content, className }: MarkdownPreviewProps) {
         rehypePlugins={[rehypeHighlight]}
         components={{
           // Disable links for security
-          a: ({ node, ...props }) => <span className="text-blue-500 cursor-not-allowed" {...props} />,
+          a: ({ node: _node, ...props }) => <span className="text-blue-500 cursor-not-allowed" {...props} />,
           // Style code blocks
-          code: ({ node, inline, ...props }) =>
+          code: ({ node: _node, inline, ...props }) =>
             inline ? (
               <code className="bg-muted px-1 py-0.5 rounded text-sm" {...props} />
             ) : (

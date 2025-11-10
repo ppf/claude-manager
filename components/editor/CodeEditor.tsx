@@ -27,7 +27,7 @@ export function CodeEditor({
   autoSaveDelay = 2000,
 }: CodeEditorProps) {
   const [content, setContent] = useState(initialContent)
-  const { isLoading: isSaving, showLoading: showSaving, startLoading, stopLoading } = useLoadingState()
+  const { showLoading: showSaving, startLoading, stopLoading } = useLoadingState()
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null)
   const debouncedContent = useDebounce(content, autoSaveDelay)
 

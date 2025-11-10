@@ -86,7 +86,7 @@ export async function restoreBackup(backupId: string): Promise<string> {
 
   try {
     return await fs.readFile(backupPath, 'utf-8')
-  } catch (error) {
+  } catch {
     throw new Error(`Failed to restore backup: ${backupId}`)
   }
 }
@@ -129,7 +129,7 @@ export async function deleteBackup(backupId: string): Promise<void> {
 
   try {
     await fs.unlink(backupPath)
-  } catch (error) {
+  } catch {
     throw new Error(`Failed to delete backup: ${backupId}`)
   }
 }
@@ -158,7 +158,7 @@ export async function getBackup(backupId: string): Promise<Backup | null> {
       timestamp: new Date(timestamp),
       size: stats.size,
     }
-  } catch (error) {
+  } catch {
     return null
   }
 }

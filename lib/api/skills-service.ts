@@ -4,7 +4,7 @@ import path from 'path'
 import matter from 'gray-matter'
 import { CLAUDE_PATHS } from '@/lib/claude/paths'
 import type { Skill } from '@/types/claude-config'
-import { isGitRepository, cloneRepository } from '@/lib/git/git-manager'
+import { cloneRepository } from '@/lib/git/git-manager'
 
 /**
  * Detect commands in skill content by looking for /command patterns
@@ -54,7 +54,7 @@ async function isMarketplaceSkill(skillId: string): Promise<boolean> {
         if (marketplace.plugins && Array.isArray(marketplace.plugins)) {
           // Check if skillId matches any plugin name
           const found = marketplace.plugins.some(
-            (plugin: any) => plugin.name === skillId
+            (plugin: { name?: string }) => plugin.name === skillId
           )
           if (found) return true
         }
