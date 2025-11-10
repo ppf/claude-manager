@@ -32,7 +32,7 @@ export async function apiCall<T>(
       let result: ApiResponse<T>
       try {
         result = await response.json()
-      } catch (parseError) {
+      } catch (_parseError) {
         throw new Error(`Failed to parse response: ${response.statusText}`)
       }
 

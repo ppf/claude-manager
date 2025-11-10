@@ -17,11 +17,19 @@ export function FileTreeNode({ node, level, selectedPath, onSelect }: FileTreeNo
   const isSelected = selectedPath === node.path
   const isDirectory = node.type === 'directory'
 
+  const handleToggle = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    setIsExpanded(!isExpanded)
+  }
+
   const handleClick = () => {
     if (isDirectory) {
+      // For directories, toggle expansion instead of selecting
       setIsExpanded(!isExpanded)
+    } else {
+      // For files, call onSelect to navigate to editor
+      onSelect(node.path)
     }
-    onSelect(node.path)
   }
 
   return (
@@ -35,7 +43,7 @@ export function FileTreeNode({ node, level, selectedPath, onSelect }: FileTreeNo
         onClick={handleClick}
       >
         {isDirectory && (
-          <span className="flex-shrink-0">
+          <span className="flex-shrink-0" onClick={handleToggle}>
             {isExpanded ? (
               <ChevronDown className="h-4 w-4" />
             ) : (
@@ -45,7 +53,7 @@ export function FileTreeNode({ node, level, selectedPath, onSelect }: FileTreeNo
         )}
         {!isDirectory && <span className="w-4" />}
 
-        <span className="flex-shrink-0">
+        <span className="flex-shrink-0" onClick={isDirectory ? handleToggle : undefined}>
           {isDirectory ? <Folder className="h-4 w-4" /> : <File className="h-4 w-4" />}
         </span>
 
