@@ -61,7 +61,7 @@ export default function SkillsPage() {
     if (skills.length > 0) {
       checkUpdates()
     }
-  }, [skills.length])
+  }, [skills])
 
   async function fetchSkills() {
     try {

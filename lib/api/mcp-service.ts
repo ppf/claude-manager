@@ -1,4 +1,3 @@
-import fs from 'fs/promises'
 import { spawn, ChildProcess } from 'child_process'
 import type { MCPServer } from '@/types/claude-config'
 import {

@@ -4,7 +4,7 @@ import path from 'path'
 import matter from 'gray-matter'
 import { CLAUDE_PATHS } from '@/lib/claude/paths'
 import type { Skill } from '@/types/claude-config'
-import { cloneRepository } from '@/lib/git/git-manager'
+import { cloneRepository, isGitRepository } from '@/lib/git/git-manager'
 
 /**
  * Detect commands in skill content by looking for /command patterns
@@ -259,8 +259,6 @@ export async function checkSkillUpdates(skillId: string): Promise<{
     modified: boolean
   }
 }> {
-  const skillPath = path.join(CLAUDE_PATHS.SKILLS, skillId)
-
   // Check if it's a git repository
   const isGit = await isGitRepository(skillId)
   if (!isGit) {
@@ -289,8 +287,6 @@ export async function checkSkillUpdates(skillId: string): Promise<{
 }
 
 export async function updateSkill(skillId: string): Promise<void> {
-  const skillPath = path.join(CLAUDE_PATHS.SKILLS, skillId)
-
   // Check if it's a git repository
   const isGit = await isGitRepository(skillId)
   if (!isGit) {
