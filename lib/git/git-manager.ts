@@ -120,7 +120,7 @@ export async function checkForUpdates(directory: string): Promise<UpdateStatus> 
       latestVersion,
       modified: status.modified.length > 0 || status.created.length > 0 || status.deleted.length > 0,
     }
-  } catch (error) {
+  } catch {
     // If fetch fails, assume no updates available
     return {
       updateAvailable: false,
