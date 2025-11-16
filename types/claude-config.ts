@@ -82,3 +82,28 @@ export interface ApiError {
   details?: Record<string, any>
   recoverable: boolean
 }
+
+export interface Marketplace {
+  id: string
+  name: string
+  description?: string
+  url?: string
+  path: string
+  pluginCount: number
+  installedCount: number
+}
+
+export interface MarketplacePlugin {
+  id: string
+  name: string
+  description: string
+  version?: string
+  author?: string
+  gitUrl?: string
+  source?: string
+  installed: boolean
+  enabled?: boolean
+  commands?: string[]
+  tags?: string[]
+  marketplaceName: string
+}
