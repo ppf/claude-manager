@@ -38,9 +38,9 @@ export default function PluginsPage() {
   async function handleToggle(skillId: string, enabled: boolean) {
     try {
       const response = await fetch(`/api/skills/${skillId}`, {
-        method: 'PUT',
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ enabled }),
+        body: JSON.stringify({ action: 'toggle', enabled }),
       })
 
       const result = await response.json()

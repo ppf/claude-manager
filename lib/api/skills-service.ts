@@ -210,6 +210,7 @@ export async function getMarketplaceSkills(): Promise<Skill[]> {
               hasCommands: commands.length > 0,
               commands: commands.length > 0 ? commands : undefined,
               tags: Array.isArray(skillData.tags) ? (skillData.tags as string[]) : [],
+              gitUrl: plugin.repository || plugin.gitUrl || plugin.url,  // Extract git URL from marketplace.json
             })
           }
         }

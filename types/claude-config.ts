@@ -34,6 +34,7 @@ export interface Skill {
   tags?: string[]
   updateAvailable?: boolean
   latestVersion?: string
+  gitUrl?: string  // Git repository URL for marketplace skills
   gitStatus?: {
     ahead: number
     behind: number
