@@ -34,6 +34,7 @@ export interface Skill {
   tags?: string[]
   updateAvailable?: boolean
   latestVersion?: string
+  gitUrl?: string  // Git repository URL for marketplace skills
   gitStatus?: {
     ahead: number
     behind: number
@@ -80,4 +81,29 @@ export interface ApiError {
   message: string
   details?: Record<string, any>
   recoverable: boolean
+}
+
+export interface Marketplace {
+  id: string
+  name: string
+  description?: string
+  url?: string
+  path: string
+  pluginCount: number
+  installedCount: number
+}
+
+export interface MarketplacePlugin {
+  id: string
+  name: string
+  description: string
+  version?: string
+  author?: string
+  gitUrl?: string
+  source?: string
+  installed: boolean
+  enabled?: boolean
+  commands?: string[]
+  tags?: string[]
+  marketplaceName: string
 }
