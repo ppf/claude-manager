@@ -1,8 +1,9 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { useKeyboardShortcut } from '@/hooks/use-keyboard-shortcut'
 import { MCPServerCard } from '@/components/mcp/MCPServerCard'
+import { SecretsWarning } from '@/components/security/SecretsWarning'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -38,6 +39,17 @@ export default function MCPPage() {
     args: '',
     env: '',
   })
+
+  // Parse environment variables for secrets detection
+  const parsedEnv = useMemo(() => {
+    if (!formData.env.trim()) return {}
+    try {
+      const parsed = JSON.parse(formData.env)
+      return typeof parsed === 'object' && parsed !== null ? parsed : {}
+    } catch {
+      return {}
+    }
+  }, [formData.env])
 
   useEffect(() => {
     fetchServers()
@@ -417,6 +429,8 @@ export default function MCPPage() {
                   rows={4}
                 />
               </div>
+
+              <SecretsWarning env={parsedEnv} />
             </div>
 
             <DialogFooter>
@@ -473,6 +487,8 @@ export default function MCPPage() {
                   rows={4}
                 />
               </div>
+
+              <SecretsWarning env={parsedEnv} />
             </div>
 
             <DialogFooter>
