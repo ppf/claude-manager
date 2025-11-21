@@ -4,21 +4,31 @@ import path from 'path'
 import matter from 'gray-matter'
 import { CLAUDE_PATHS } from '@/lib/claude/paths'
 import type { Skill } from '@/types/claude-config'
-import { cloneRepository } from '@/lib/git/git-manager'
+import { cloneRepository, isGitRepository } from '@/lib/git/git-manager'
+import { skillMetadataSchema } from '@/lib/validators/skill-schema'
 
 /**
- * Detect commands in skill content by looking for /command patterns
+ * Parse skill commands from frontmatter using Zod validation
+ * Falls back to empty array if commands not specified or invalid
  */
-export function detectCommands(content: string): string[] {
-  const commandPattern = /\/([a-z][a-z0-9-]*)/g
-  const matches = content.matchAll(commandPattern)
-  const commands = new Set<string>()
+export function parseSkillCommands(frontmatter: unknown): string[] {
+  const result = skillMetadataSchema.safeParse(frontmatter)
 
-  for (const match of matches) {
-    commands.add(match[1])
+  if (result.success) {
+    return result.data.commands || []
   }
 
-  return Array.from(commands)
+  // Fallback: if parsing fails but commands field exists as array, use it
+  if (
+    typeof frontmatter === 'object' &&
+    frontmatter !== null &&
+    'commands' in frontmatter &&
+    Array.isArray(frontmatter.commands)
+  ) {
+    return frontmatter.commands.filter((cmd): cmd is string => typeof cmd === 'string')
+  }
+
+  return []
 }
 
 /**
@@ -88,7 +98,7 @@ export async function getLocalSkills(): Promise<Skill[]> {
         const { data } = matter(content)
 
         const isMarketplace = await isMarketplaceSkill(entry.name)
-        const commands = detectCommands(content)
+        const commands = parseSkillCommands(data)
 
         skills.push({
           id: entry.name,
@@ -186,7 +196,7 @@ export async function getMarketplaceSkills(): Promise<Skill[]> {
               const skillContent = await fs.readFile(skillFile, 'utf-8')
               const parsed = matter(skillContent)
               skillData = parsed.data
-              commands = detectCommands(skillContent)
+              commands = parseSkillCommands(parsed.data)
             } catch {
               // No SKILL.md file, use marketplace.json data
             }
