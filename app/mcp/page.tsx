@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useKeyboardShortcut } from '@/hooks/use-keyboard-shortcut'
 import { MCPServerCard } from '@/components/mcp/MCPServerCard'
 import { Button } from '@/components/ui/button'
 import {
@@ -295,6 +296,23 @@ export default function MCPPage() {
       env: '',
     })
   }
+
+  // Keyboard shortcuts
+  useKeyboardShortcut(handleAddServer, {
+    key: 's',
+    metaKey: true,
+    ctrlKey: true,
+    preventDefault: true,
+    enabled: isAddDialogOpen,
+  })
+
+  useKeyboardShortcut(handleEditServer, {
+    key: 's',
+    metaKey: true,
+    ctrlKey: true,
+    preventDefault: true,
+    enabled: isEditDialogOpen,
+  })
 
   if (isLoading) {
     return (
