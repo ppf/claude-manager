@@ -1,7 +1,9 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
+import { useKeyboardShortcut } from '@/hooks/use-keyboard-shortcut'
 import { MCPServerCard } from '@/components/mcp/MCPServerCard'
+import { SecretsWarning } from '@/components/security/SecretsWarning'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -37,6 +39,17 @@ export default function MCPPage() {
     args: '',
     env: '',
   })
+
+  // Parse environment variables for secrets detection
+  const parsedEnv = useMemo(() => {
+    if (!formData.env.trim()) return {}
+    try {
+      const parsed = JSON.parse(formData.env)
+      return typeof parsed === 'object' && parsed !== null ? parsed : {}
+    } catch {
+      return {}
+    }
+  }, [formData.env])
 
   useEffect(() => {
     fetchServers()
@@ -227,6 +240,66 @@ export default function MCPPage() {
     setIsEditDialogOpen(true)
   }
 
+  async function handleStart(serverId: string) {
+    try {
+      const response = await fetch(`/api/mcp/${serverId}/start`, {
+        method: 'POST',
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        toast.success('Server started')
+        fetchServers()
+      } else {
+        toast.error(result.error?.message || 'Failed to start server')
+      }
+    } catch (error) {
+      toast.error('Failed to start server')
+      console.error('Start error:', error)
+    }
+  }
+
+  async function handleStop(serverId: string) {
+    try {
+      const response = await fetch(`/api/mcp/${serverId}/stop`, {
+        method: 'POST',
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        toast.success('Server stopped')
+        fetchServers()
+      } else {
+        toast.error(result.error?.message || 'Failed to stop server')
+      }
+    } catch (error) {
+      toast.error('Failed to stop server')
+      console.error('Stop error:', error)
+    }
+  }
+
+  async function handleRestart(serverId: string) {
+    try {
+      const response = await fetch(`/api/mcp/${serverId}/restart`, {
+        method: 'POST',
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        toast.success('Server restarted')
+        fetchServers()
+      } else {
+        toast.error(result.error?.message || 'Failed to restart server')
+      }
+    } catch (error) {
+      toast.error('Failed to restart server')
+      console.error('Restart error:', error)
+    }
+  }
+
   function resetForm() {
     setFormData({
       name: '',
@@ -235,6 +308,23 @@ export default function MCPPage() {
       env: '',
     })
   }
+
+  // Keyboard shortcuts
+  useKeyboardShortcut(handleAddServer, {
+    key: 's',
+    metaKey: true,
+    ctrlKey: true,
+    preventDefault: true,
+    enabled: isAddDialogOpen,
+  })
+
+  useKeyboardShortcut(handleEditServer, {
+    key: 's',
+    metaKey: true,
+    ctrlKey: true,
+    preventDefault: true,
+    enabled: isEditDialogOpen,
+  })
 
   if (isLoading) {
     return (
@@ -282,6 +372,9 @@ export default function MCPPage() {
                 onTest={handleTest}
                 onViewLogs={handleViewLogs}
                 onEdit={handleEdit}
+                onStart={handleStart}
+                onStop={handleStop}
+                onRestart={handleRestart}
               />
             ))}
           </div>
@@ -336,6 +429,8 @@ export default function MCPPage() {
                   rows={4}
                 />
               </div>
+
+              <SecretsWarning env={parsedEnv} />
             </div>
 
             <DialogFooter>
@@ -392,6 +487,8 @@ export default function MCPPage() {
                   rows={4}
                 />
               </div>
+
+              <SecretsWarning env={parsedEnv} />
             </div>
 
             <DialogFooter>

@@ -236,7 +236,7 @@ function queueIndexUpdate(filePath: string): void {
 
   indexUpdateTimeout = setTimeout(() => {
     processIndexQueue()
-  }, 1000) // 1 second debounce
+  }, 300) // 300ms debounce for responsive updates
 }
 
 /**

@@ -14,6 +14,9 @@ import {
   CheckCircle2,
   XCircle,
   Loader2,
+  Play,
+  StopCircle,
+  RotateCw,
 } from 'lucide-react'
 import type { MCPServer } from '@/types/claude-config'
 
@@ -24,6 +27,9 @@ interface MCPServerCardProps {
   onTest?: (serverId: string) => void
   onViewLogs?: (serverId: string) => void
   onEdit?: (serverId: string) => void
+  onStart?: (serverId: string) => void
+  onStop?: (serverId: string) => void
+  onRestart?: (serverId: string) => void
 }
 
 const STATUS_CONFIG = {
@@ -33,17 +39,31 @@ const STATUS_CONFIG = {
     bgColor: 'bg-green-500/10',
     label: 'Running',
   },
+  starting: {
+    icon: Loader2,
+    color: 'text-blue-500',
+    bgColor: 'bg-blue-500/10',
+    label: 'Starting',
+    animate: true,
+  },
   stopped: {
     icon: Square,
     color: 'text-gray-500',
     bgColor: 'bg-gray-500/10',
     label: 'Stopped',
   },
-  error: {
+  failed: {
     icon: XCircle,
     color: 'text-red-500',
     bgColor: 'bg-red-500/10',
-    label: 'Error',
+    label: 'Failed',
+  },
+  restarting: {
+    icon: RotateCw,
+    color: 'text-yellow-500',
+    bgColor: 'bg-yellow-500/10',
+    label: 'Restarting',
+    animate: true,
   },
 }
 
@@ -54,11 +74,14 @@ export function MCPServerCard({
   onTest,
   onViewLogs,
   onEdit,
+  onStart,
+  onStop,
+  onRestart,
 }: MCPServerCardProps) {
   const [isTesting, setIsTesting] = useState(false)
 
   const status = server.status || 'stopped'
-  const statusConfig = STATUS_CONFIG[status]
+  const statusConfig = STATUS_CONFIG[status as keyof typeof STATUS_CONFIG] || STATUS_CONFIG.stopped
   const StatusIcon = statusConfig.icon
 
   async function handleTest() {
@@ -79,7 +102,7 @@ export function MCPServerCard({
             <div className="flex items-center gap-3 mb-2">
               <CardTitle className="text-lg">{server.name}</CardTitle>
               <Badge variant="secondary" className={`gap-1 ${statusConfig.bgColor}`}>
-                <StatusIcon className={`h-3 w-3 ${statusConfig.color}`} />
+                <StatusIcon className={`h-3 w-3 ${statusConfig.color} ${statusConfig.animate ? 'animate-spin' : ''}`} />
                 <span className={statusConfig.color}>{statusConfig.label}</span>
               </Badge>
             </div>
@@ -114,6 +137,40 @@ export function MCPServerCard({
 
           {/* Actions */}
           <div className="flex items-center gap-2 pt-2">
+            {/* Process control buttons */}
+            {status === 'stopped' || status === 'failed' ? (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onStart?.(server.id)}
+                className="gap-1"
+              >
+                <Play className="h-3 w-3" />
+                Start
+              </Button>
+            ) : status === 'running' ? (
+              <>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onStop?.(server.id)}
+                  className="gap-1"
+                >
+                  <StopCircle className="h-3 w-3" />
+                  Stop
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onRestart?.(server.id)}
+                  className="gap-1"
+                >
+                  <RotateCw className="h-3 w-3" />
+                  Restart
+                </Button>
+              </>
+            ) : null}
+
             <Button
               variant="outline"
               size="sm"
@@ -126,7 +183,7 @@ export function MCPServerCard({
               ) : (
                 <TestTube className="h-3 w-3" />
               )}
-              Test Connection
+              Test
             </Button>
 
             {status === 'running' && (
@@ -137,7 +194,7 @@ export function MCPServerCard({
                 className="gap-1"
               >
                 <FileText className="h-3 w-3" />
-                View Logs
+                Logs
               </Button>
             )}
 

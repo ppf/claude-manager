@@ -1,4 +1,4 @@
-import { spawn, ChildProcess } from 'child_process'
+import { spawn } from 'child_process'
 import type { MCPServer } from '@/types/claude-config'
 import {
   getAllClaudeMCPServers,
@@ -7,23 +7,17 @@ import {
   createClaudeMCPTemplate,
   mcpServerExists,
 } from './claude-mcp-config'
+import { mcpProcessManager, type ProcessStatus } from '@/lib/mcp/process-manager'
 
 export interface MCPServerStatus {
   running: boolean
+  status: ProcessStatus
   pid?: number
   uptime?: number
+  restartCount?: number
   lastHealthCheck?: Date
   error?: string
 }
-
-interface RunningServer {
-  process: ChildProcess
-  startTime: number
-  logs: string[]
-}
-
-// Track running server processes
-const runningServers = new Map<string, RunningServer>()
 
 /**
  * Get all MCP servers from Claude's configuration
@@ -32,7 +26,7 @@ export async function getAllServers(): Promise<MCPServer[]> {
   const servers = await getAllClaudeMCPServers()
   return servers.map((server) => ({
     ...server,
-    status: getServerStatusSync(server.id),
+    status: mcpProcessManager.getStatus(server.id),
   }))
 }
 
@@ -46,7 +40,7 @@ export async function getServer(id: string): Promise<MCPServer | null> {
 
   return {
     ...server,
-    status: getServerStatusSync(id),
+    status: mcpProcessManager.getStatus(id),
   }
 }
 
@@ -99,7 +93,7 @@ export async function updateServer(id: string, updates: Partial<MCPServer>): Pro
   }
 
   // Stop server if it's running and being disabled
-  if (updates.enabled === false && runningServers.has(id)) {
+  if (updates.enabled === false && mcpProcessManager.getStatus(id) === 'running') {
     await stopServer(id)
   }
 
@@ -132,7 +126,7 @@ export async function deleteServer(id: string): Promise<void> {
   }
 
   // Stop server if running
-  if (runningServers.has(id)) {
+  if (mcpProcessManager.getStatus(id) !== 'stopped') {
     await stopServer(id)
   }
 
@@ -152,99 +146,52 @@ export async function startServer(id: string): Promise<void> {
     throw new Error(`Server '${id}' not found`)
   }
 
-  if (runningServers.has(id)) {
-    throw new Error(`Server '${id}' is already running`)
-  }
-
-  const logs: string[] = []
-
-  const childProcess = spawn(server.command, server.args || [], {
-    env: { ...process.env, ...server.env },
-    stdio: ['pipe', 'pipe', 'pipe'],
-  })
-
-  // Capture stdout
-  childProcess.stdout?.on('data', (data: Buffer) => {
-    const log = data.toString()
-    logs.push(`[stdout] ${log}`)
-    if (logs.length > 1000) logs.shift() // Keep last 1000 lines
-  })
-
-  // Capture stderr
-  childProcess.stderr?.on('data', (data: Buffer) => {
-    const log = data.toString()
-    logs.push(`[stderr] ${log}`)
-    if (logs.length > 1000) logs.shift()
-  })
-
-  // Handle process exit
-  childProcess.on('exit', (code: number | null) => {
-    logs.push(`[system] Process exited with code ${code}`)
-    runningServers.delete(id)
-  })
-
-  runningServers.set(id, {
-    process: childProcess,
-    startTime: Date.now(),
-    logs,
-  })
+  await mcpProcessManager.start(server)
 }
 
 /**
  * Stop an MCP server
  */
 export async function stopServer(id: string): Promise<void> {
-  const running = runningServers.get(id)
-
-  if (!running) {
-    throw new Error(`Server '${id}' is not running`)
-  }
-
-  running.process.kill()
-  runningServers.delete(id)
+  await mcpProcessManager.stop(id)
 }
 
 /**
- * Get server status (synchronous)
+ * Restart an MCP server
  */
-function getServerStatusSync(id: string): 'running' | 'stopped' | 'error' {
-  const running = runningServers.get(id)
+export async function restartServer(id: string): Promise<void> {
+  const server = await getServer(id)
 
-  if (!running) return 'stopped'
-
-  // Check if process is still alive
-  try {
-    process.kill(running.process.pid!, 0)
-    return 'running'
-  } catch {
-    return 'error'
+  if (!server) {
+    throw new Error(`Server '${id}' not found`)
   }
+
+  await mcpProcessManager.restart(server)
 }
 
 /**
  * Get server status with details
  */
 export async function getServerStatus(serverId: string): Promise<MCPServerStatus> {
-  const server = runningServers.get(serverId)
+  const proc = mcpProcessManager.getProcess(serverId)
 
-  if (!server) {
-    return { running: false }
-  }
-
-  // Check if process is still alive
-  try {
-    process.kill(server.process.pid!, 0)
-    return {
-      running: true,
-      pid: server.process.pid,
-      uptime: Date.now() - server.startTime,
-      lastHealthCheck: new Date(),
-    }
-  } catch {
+  if (!proc || proc.status === 'stopped') {
     return {
       running: false,
-      error: 'Process not found',
+      status: 'stopped',
     }
+  }
+
+  const uptime = proc.startedAt ? Date.now() - proc.startedAt.getTime() : undefined
+
+  return {
+    running: proc.status === 'running',
+    status: proc.status,
+    pid: proc.pid,
+    uptime,
+    restartCount: proc.restartCount,
+    lastHealthCheck: new Date(),
+    error: proc.error,
   }
 }
 
@@ -297,12 +244,6 @@ export async function testMCPConnection(server: MCPServer): Promise<boolean> {
 /**
  * Get server logs
  */
-export async function getServerLogs(id: string): Promise<string[]> {
-  const running = runningServers.get(id)
-
-  if (!running) {
-    return ['Server is not running']
-  }
-
-  return running.logs
+export async function getServerLogs(id: string, lines?: number): Promise<string[]> {
+  return mcpProcessManager.getLogs(id, lines)
 }

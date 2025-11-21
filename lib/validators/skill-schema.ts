@@ -14,6 +14,15 @@ export const skillMetadataSchema = z.object({
   category: z
     .enum(['productivity', 'development', 'writing', 'research', 'other'])
     .default('other'),
+  commands: z
+    .array(
+      z.string().regex(
+        /^[a-z][a-z0-9-]*$/,
+        'Command names must start with a letter and contain only lowercase letters, numbers, and hyphens'
+      )
+    )
+    .default([])
+    .describe('Slash commands provided by this skill (e.g., ["help", "debug"])'),
   dependencies: z.array(z.string()).default([]),
   keywords: z.array(z.string()).default([]),
   homepage: z.string().url('Invalid URL').optional(),

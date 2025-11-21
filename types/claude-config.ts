@@ -51,6 +51,8 @@ export interface Plugin {
   config?: Record<string, any>
 }
 
+export type MCPServerStatus = 'running' | 'stopped' | 'starting' | 'failed' | 'restarting'
+
 export interface MCPServer {
   id: string
   name: string
@@ -58,7 +60,7 @@ export interface MCPServer {
   args?: string[]
   env?: Record<string, string>
   enabled: boolean
-  status?: 'running' | 'stopped' | 'error'
+  status?: MCPServerStatus
 }
 
 export interface SearchResult {
