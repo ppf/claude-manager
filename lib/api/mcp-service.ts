@@ -1,4 +1,4 @@
-import fs from 'fs/promises'
+import { spawn } from 'child_process'
 import type { MCPServer } from '@/types/claude-config'
 import {
   getAllClaudeMCPServers,

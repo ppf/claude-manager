@@ -37,7 +37,7 @@ export async function apiCall<T>(
       }
 
       // Check if response indicates success
-      if (result.success) {
+      if (result.success && result.data !== undefined) {
         return result.data
       }
 

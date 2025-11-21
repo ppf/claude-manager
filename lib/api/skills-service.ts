@@ -220,6 +220,7 @@ export async function getMarketplaceSkills(): Promise<Skill[]> {
               hasCommands: commands.length > 0,
               commands: commands.length > 0 ? commands : undefined,
               tags: Array.isArray(skillData.tags) ? (skillData.tags as string[]) : [],
+              gitUrl: plugin.repository || plugin.gitUrl || plugin.url,  // Extract git URL from marketplace.json
             })
           }
         }
@@ -269,8 +270,6 @@ export async function checkSkillUpdates(skillId: string): Promise<{
     modified: boolean
   }
 }> {
-  const skillPath = path.join(CLAUDE_PATHS.SKILLS, skillId)
-
   // Check if it's a git repository
   const isGit = await isGitRepository(skillId)
   if (!isGit) {
@@ -299,8 +298,6 @@ export async function checkSkillUpdates(skillId: string): Promise<{
 }
 
 export async function updateSkill(skillId: string): Promise<void> {
-  const skillPath = path.join(CLAUDE_PATHS.SKILLS, skillId)
-
   // Check if it's a git repository
   const isGit = await isGitRepository(skillId)
   if (!isGit) {

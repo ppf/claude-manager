@@ -46,7 +46,7 @@ async function readSettingsLocal(): Promise<ClaudeSettingsLocal> {
   try {
     const content = await fs.readFile(SETTINGS_LOCAL_PATH, 'utf-8')
     return JSON.parse(content)
-  } catch (error) {
+  } catch {
     // File might not exist, return empty config
     return {}
   }
@@ -67,7 +67,7 @@ async function readMCPTemplate(templateName: string): Promise<ClaudeMCPConfig | 
     const templatePath = path.join(MCP_TEMPLATES_DIR, `${templateName}.mcp.json`)
     const content = await fs.readFile(templatePath, 'utf-8')
     return JSON.parse(content)
-  } catch (error) {
+  } catch {
     return null
   }
 }
@@ -79,7 +79,7 @@ async function listMCPTemplates(): Promise<string[]> {
   try {
     const files = await fs.readdir(MCP_TEMPLATES_DIR)
     return files.filter((f) => f.endsWith('.mcp.json')).map((f) => f.replace('.mcp.json', ''))
-  } catch (error) {
+  } catch {
     return []
   }
 }

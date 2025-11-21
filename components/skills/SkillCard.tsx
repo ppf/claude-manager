@@ -21,8 +21,14 @@ export function SkillCard({ skill, onUpdate }: SkillCardProps) {
   async function handleInstall() {
     try {
       setIsLoading(true)
-      // TODO: Get git URL from marketplace
-      const gitUrl = `https://github.com/example/${skill.id}.git`
+
+      // Get git URL from skill metadata
+      const gitUrl = skill.gitUrl
+
+      if (!gitUrl) {
+        toast.error('Git repository URL not found for this skill')
+        return
+      }
 
       const response = await fetch(`/api/skills/${skill.id}`, {
         method: 'POST',
@@ -155,9 +161,9 @@ export function SkillCard({ skill, onUpdate }: SkillCardProps) {
       <CardContent>
         <div className="flex gap-2">
           {!isInstalled ? (
-            <Button onClick={handleInstall} disabled={isLoading} size="sm">
+            <Button onClick={handleInstall} disabled={isLoading || !skill.gitUrl} size="sm">
               <Download className="h-4 w-4 mr-2" />
-              Install
+              {skill.gitUrl ? 'Install' : 'No Git URL'}
             </Button>
           ) : (
             <>

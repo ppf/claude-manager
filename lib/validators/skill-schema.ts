@@ -32,6 +32,15 @@ export const skillMetadataSchema = z.object({
 
 export type SkillMetadata = z.infer<typeof skillMetadataSchema>
 
+// Simple skill schema for API/test usage
+export const skillSchema = z.object({
+  name: z.string(),
+  description: z.string(),
+  author: z.string(),
+  version: z.string(),
+  path: z.string(),
+})
+
 export const skillFileSchema = z.object({
   metadata: skillMetadataSchema,
   content: z.string().min(1, 'Skill content cannot be empty'),

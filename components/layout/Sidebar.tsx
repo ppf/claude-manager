@@ -4,7 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useTheme } from 'next-themes'
-import { FileText, Puzzle, Package, Server, Moon, Sun, Menu } from 'lucide-react'
+import { FileText, Puzzle, Package, Server, Moon, Sun, Menu, Store } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { cn } from '@/lib/utils'
@@ -14,6 +14,7 @@ const navigation = [
   { name: 'Configs', href: '/configs', icon: FileText },
   { name: 'Skills', href: '/skills', icon: Puzzle },
   { name: 'Plugins', href: '/plugins', icon: Package },
+  { name: 'Marketplaces', href: '/marketplaces', icon: Store },
   { name: 'MCP Servers', href: '/mcp', icon: Server },
 ]
 
