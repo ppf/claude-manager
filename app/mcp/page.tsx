@@ -227,6 +227,66 @@ export default function MCPPage() {
     setIsEditDialogOpen(true)
   }
 
+  async function handleStart(serverId: string) {
+    try {
+      const response = await fetch(`/api/mcp/${serverId}/start`, {
+        method: 'POST',
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        toast.success('Server started')
+        fetchServers()
+      } else {
+        toast.error(result.error?.message || 'Failed to start server')
+      }
+    } catch (error) {
+      toast.error('Failed to start server')
+      console.error('Start error:', error)
+    }
+  }
+
+  async function handleStop(serverId: string) {
+    try {
+      const response = await fetch(`/api/mcp/${serverId}/stop`, {
+        method: 'POST',
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        toast.success('Server stopped')
+        fetchServers()
+      } else {
+        toast.error(result.error?.message || 'Failed to stop server')
+      }
+    } catch (error) {
+      toast.error('Failed to stop server')
+      console.error('Stop error:', error)
+    }
+  }
+
+  async function handleRestart(serverId: string) {
+    try {
+      const response = await fetch(`/api/mcp/${serverId}/restart`, {
+        method: 'POST',
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        toast.success('Server restarted')
+        fetchServers()
+      } else {
+        toast.error(result.error?.message || 'Failed to restart server')
+      }
+    } catch (error) {
+      toast.error('Failed to restart server')
+      console.error('Restart error:', error)
+    }
+  }
+
   function resetForm() {
     setFormData({
       name: '',
@@ -282,6 +342,9 @@ export default function MCPPage() {
                 onTest={handleTest}
                 onViewLogs={handleViewLogs}
                 onEdit={handleEdit}
+                onStart={handleStart}
+                onStop={handleStop}
+                onRestart={handleRestart}
               />
             ))}
           </div>
